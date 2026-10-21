@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Responder en clase</title>
+<style>
+:root{--ues:#a3172b;--ink:#1d1a1a;--muted:#6b6464;--line:#e2dcdc;--bg:#f7f5f3;--surface:#fff;--ok:#1f7a4a;
+--oA:#2563c9;--oB:#1f8a5b;--oC:#c98a00;--oD:#7b3fb3}
+@media (prefers-color-scheme:dark){:root{--ink:#f1eded;--muted:#b3abab;--line:#3a3434;--bg:#1a1717;--surface:#242020;--ok:#4fc48a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:480px;margin:0 auto;padding:20px 16px 40px}
+header{border-bottom:3px solid var(--ues);padding-bottom:10px;margin-bottom:18px}
+header b{color:var(--ues);font-size:.8em;letter-spacing:.06em}
+header div{color:var(--muted);font-size:.8em}
+h1{font-size:1.35em;margin:.2em 0 .6em}
+label{display:block;font-weight:600;font-size:.9em;margin:14px 0 6px}
+input,select{width:100%;font:inherit;padding:.7em .8em;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+input:focus,select:focus{outline:3px solid var(--oA);outline-offset:1px}
+.btn{width:100%;margin-top:18px;font:inherit;font-weight:700;padding:.85em;border-radius:12px;border:0;background:var(--ues);color:#fff}
+.btn:disabled{opacity:.5}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.muted{color:var(--muted);font-size:.85em}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.opt{font:inherit;font-size:2.4em;font-weight:800;color:#fff;border:4px solid transparent;border-radius:16px;aspect-ratio:1;cursor:pointer}
+.opt.A{background:var(--oA)}.opt.B{background:var(--oB)}.opt.C{background:var(--oC)}.opt.D{background:var(--oD)}
+.opt.sel{border-color:var(--ink);box-shadow:0 0 0 3px var(--surface) inset}
+.opt:disabled{opacity:.35}
+.status{margin-top:14px;font-weight:600}
+.status.ok{color:var(--ok)}
+.err{color:var(--ues);font-weight:600;margin-top:10px}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:.8em;margin-top:22px;padding:0}
+</style>
+</head>
+<body>
+<main>
+  <header><b>UNIVERSIDAD DE EL SALVADOR · GINECOLOGÍA Y OBSTETRICIA</b><div>Respuestas en clase</div></header>
+  <section id="join">
+    <h1>Entrar a la sesión</h1>
+    <form id="f" autocomplete="on">
+      <label for="code">Código de la pantalla</label>
+      <input id="code" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="4 dígitos">
+      <label for="name">Nombre y apellido</label>
+      <input id="name" maxlength="60" required autocomplete="name">
+      <label for="year">Año</label>
+      <select id="year" required><option value="">Elegir</option><option>R1</option><option>R2</option><option>R3</option><option>Interno</option><option>Otro</option></select>
+      <button class="btn" id="go" type="submit">Entrar</button>
+      <div class="err" id="jerr" role="alert"></div>
+    </form>
+  </section>
+  <section id="room" hidden>
+    <div class="card">
+      <div class="muted" id="who"></div>
+      <h1 id="qtitle">Esperando la pregunta…</h1>
+      <div class="muted" id="hint">Mire la pantalla. Cuando el ponente abra la votación, aparecerán las opciones.</div>
+      <div class="opts" id="opts"></div>
+      <div class="status" id="st" role="status" aria-live="polite"></div>
+    </div>
+    <button class="link" id="leave">Salir de esta sesión</button>
+  </section>
+</main>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged, connectAuthEmulator } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, set, get, onValue, serverTimestamp, connectDatabaseEmulator } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { FIREBASE_CONFIG } from "./config.js";
+
+const $ = id => document.getElementById(id);
+const app = initializeApp(FIREBASE_CONFIG), auth = getAuth(app), db = getDatabase(app);
+if (FIREBASE_CONFIG.useEmulator) { connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true }); connectDatabaseEmulator(db, "127.0.0.1", 9000); }
+let uid = null, me = null, ses = null, mine = {}, unsub = [], code = null;
+const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };
+
+const qc = new URLSearchParams(location.search).get("c");
+$("code").value = qc || ls.get("rc-code") || "";
+$("name").value = ls.get("rc-name") || "";
+$("year").value = ls.get("rc-year") || "";
+
+const authReady = new Promise(res => onAuthStateChanged(auth, u => { if (u) { uid = u.uid; res(); } }));
+signInAnonymously(auth).catch(e => { $("jerr").textContent = "Sin conexión con el servidor (" + e.code + ")."; });
+
+async function join(c) {
+  await authReady;
+  const s = await get(ref(db, "sesiones/" + c));
+  if (!s.exists()) { $("jerr").textContent = "Ese código no existe. Revise la pantalla."; return false; }
+  code = c; me = { nombre: $("name").value.trim(), anio: $("year").value };
+  ls.set("rc-code", c); ls.set("rc-name", me.nombre); ls.set("rc-year", me.anio); ls.set("rc-joined", c);
+  $("join").hidden = true; $("room").hidden = false;
+  $("who").textContent = me.nombre + " · " + me.anio + " · código " + c;
+  unsub.push(onValue(ref(db, "sesiones/" + c), snap => { ses = snap.val(); paint(); }));
+  return true;
+}
+const checked = {};
+function paint() {
+  if (ses && ses.caso !== "0" && !checked[ses.caso]) {
+    const cs = ses.caso; checked[cs] = true;
+    get(ref(db, `votos/${code}/${cs}/${uid}`)).then(s => { if (s.exists() && !mine[cs]) { mine[cs] = s.val().op; paint(); } }).catch(() => {});
+  }
+  const open = ses && ses.abierta && ses.caso !== "0";
+  const caso = ses ? ses.caso : "0";
+  const sel = mine[caso];
+  $("qtitle").textContent = ses && caso !== "0" ? "Caso " + caso + (ses.titulo ? ": " + ses.titulo : "") : "Esperando la pregunta…";
+  $("hint").textContent = open ? "Elija su respuesta. Puede cambiarla mientras la votación esté abierta." : (caso !== "0" ? "Votación cerrada. Mire la pantalla." : "Mire la pantalla. Cuando el ponente abra la votación, aparecerán las opciones.");
+  $("opts").innerHTML = (open || sel) ? ["A","B","C","D"].map(k => `<button class="opt ${k} ${sel===k?"sel":""}" data-k="${k}" ${open?"":"disabled"} aria-pressed="${sel===k}">${k}</button>`).join("") : "";
+  $("st").className = "status" + (sel ? " ok" : "");
+  $("st").textContent = sel ? "Respuesta registrada: " + sel : "";
+}
+$("opts").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-k]"); if (!b || !ses || !ses.abierta) return;
+  const k = b.dataset.k, caso = ses.caso;
+  try {
+    await set(ref(db, `votos/${code}/${caso}/${uid}`), { nombre: me.nombre, anio: me.anio, op: k, t: serverTimestamp() });
+    mine[caso] = k; paint();
+  } catch (err) { $("st").className = "status"; $("st").textContent = "No se registró: la votación ya se cerró."; }
+});
+$("f").addEventListener("submit", async e => {
+  e.preventDefault(); $("jerr").textContent = "";
+  const c = $("code").value.trim();
+  if (!/^\d{4}$/.test(c)) { $("jerr").textContent = "El código tiene 4 dígitos."; return; }
+  $("go").disabled = true; await join(c); $("go").disabled = false;
+});
+$("leave").addEventListener("click", () => { unsub.forEach(f => f()); unsub = []; ls.del("rc-joined"); mine = {}; $("room").hidden = true; $("join").hidden = false; });
+if (ls.get("rc-joined") && ls.get("rc-joined") === $("code").value && $("name").value && $("year").value) join($("code").value);
+</script>
+</body>
+</html>
