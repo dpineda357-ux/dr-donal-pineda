@@ -100,7 +100,7 @@ function paint() {
   const open = ses && ses.abierta && ses.caso !== "0";
   const caso = ses ? ses.caso : "0";
   const sel = mine[caso];
-  $("qtitle").textContent = ses && caso !== "0" ? "Caso " + caso + (ses.titulo ? ": " + ses.titulo : "") : "Esperando la pregunta…";
+  $("qtitle").textContent = ses && caso !== "0" ? "Caso " + caso.split("-")[0] + (ses.titulo ? ": " + ses.titulo : "") : "Esperando la pregunta…";
   $("hint").textContent = open ? "Elija su respuesta. Puede cambiarla mientras la votación esté abierta." : (caso !== "0" ? "Votación cerrada. Mire la pantalla." : "Mire la pantalla. Cuando el ponente abra la votación, aparecerán las opciones.");
   $("opts").innerHTML = (open || sel) ? ["A","B","C","D"].map(k => `<button class="opt ${k} ${sel===k?"sel":""}" data-k="${k}" ${open?"":"disabled"} aria-pressed="${sel===k}">${k}</button>`).join("") : "";
   $("st").className = "status" + (sel ? " ok" : "");

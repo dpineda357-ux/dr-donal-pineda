@@ -56,7 +56,9 @@ function watchVotes(n) {
   votesKey = k; votes = {};
   unsubVotes = onValue(ref(db, "votos/" + code + "/" + n), snap => { votes = snap.val() || {}; paint(); });
 }
-const openVote = n => update(ref(db, "sesiones/" + code), { caso: String(n + 1), titulo: A().CASES[n].title, abierta: true });
+const vkey = () => A().dkey(A().S.node, A().S.step);
+const vtitle = () => { const S = A().S, m = A().nSteps(S.node); return A().CASES[S.node].title + (m > 1 ? " · decisión " + (S.step + 1) : ""); };
+const openVote = () => update(ref(db, "sesiones/" + code), { caso: vkey(), titulo: vtitle(), abierta: true });
 const closeVote = () => update(ref(db, "sesiones/" + code), { abierta: false });
 
 function tally(v) {
@@ -91,7 +93,7 @@ function paintCover() {
 }
 function paintPanel(S) {
   const el = $id("livePanel"); if (!el || !code || !ses) return;
-  const n = S.node, caso = String(n + 1), mine = ses.caso === caso;
+  const n = S.node, caso = vkey(), mine = ses.caso === caso, D = A().dec(n, S.step);
   watchVotes(caso);
   let body;
   if (mine && ses.abierta) {
@@ -100,11 +102,11 @@ function paintPanel(S) {
       <p style="font-family:var(--f-mono);font-size:2.2em;margin:0">${cnt}</p><p class="muted" style="margin-top:0">respuesta${cnt === 1 ? "" : "s"}</p>
       <div><button class="btn primary" id="lvClose">Cerrar y mostrar porcentajes</button></div>`;
   } else if (mine && tally(votes).n) {
-    body = `${barsHTML(votes, S.seen[n].includes(A().CASES[n].best) ? A().CASES[n].best : null)}
+    body = `${barsHTML(votes, (S.seen[caso] || []).includes(D.best) ? D.best : null)}
       <div><button class="btn ghost" id="lvOpen">Reabrir votación</button></div>`;
   } else {
     body = `<p>Código <b style="font-family:var(--f-mono)">${code}</b>. Los residentes eligen A, B, C o D en su celular.</p>
-      <div><button class="btn primary" id="lvOpen">Abrir votación del caso ${n + 1}</button></div>`;
+      <div><button class="btn primary" id="lvOpen">Abrir votación${A().nSteps(n) > 1 ? " de la decisión " + (S.step + 1) : " del caso " + (n + 1)}</button></div>`;
   }
   el.innerHTML = `<h3>Respuestas por celular</h3>${body}`;
 }
@@ -124,8 +126,10 @@ async function downloadCSV() {
   const snap = await get(ref(db, "votos/" + code));
   const all = snap.val() || {}, rows = [["codigo", "tema", "caso", "titulo", "nombre", "anio", "respuesta", "recomendada", "acierto", "hora"]];
   Object.entries(all).forEach(([caso, vs]) => {
-    const C = A().CASES[+caso - 1]; if (!C) return;
-    Object.values(vs).forEach(v => rows.push([code, A().T.title, caso, C.title, v.nombre, v.anio || "", v.op, C.best, v.op === C.best ? "1" : "0", new Date(v.t).toLocaleString()]));
+    const [ci, si] = caso.split("-").map(Number), n = ci - 1, st = si ? si - 1 : 0;
+    const C = A().CASES[n]; if (!C || st >= A().nSteps(n)) return;
+    const D = A().dec(n, st);
+    Object.values(vs).forEach(v => rows.push([code, A().T.title, caso, C.title, v.nombre, v.anio || "", v.op, D.best, v.op === D.best ? "1" : "0", new Date(v.t).toLocaleString()]));
   });
   const csv = "﻿" + rows.map(r => r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(",")).join("\r\n");
   const a = document.createElement("a");
@@ -136,7 +140,7 @@ document.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.id === "lvStart") createSession();
   if (b.id === "lvNew") { forget(); createSession(); }
-  if (b.id === "lvOpen") openVote(A().S.node);
+  if (b.id === "lvOpen") openVote();
   if (b.id === "lvClose") closeVote();
   if (b.id === "lvCSV") downloadCSV();
 });
