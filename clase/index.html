@@ -64,7 +64,7 @@ input:focus,select:focus{outline:3px solid var(--oA);outline-offset:1px}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, connectAuthEmulator } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getDatabase, ref, set, get, onValue, serverTimestamp, connectDatabaseEmulator } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { FIREBASE_CONFIG } from "./config.js";
+import { FIREBASE_CONFIG } from "./config.js?v=20261026";
 
 const $ = id => document.getElementById(id);
 const app = initializeApp(FIREBASE_CONFIG), auth = getAuth(app), db = getDatabase(app);
