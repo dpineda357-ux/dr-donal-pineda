@@ -105,7 +105,7 @@ function paintPanel(S) {
     body = `${barsHTML(votes, (S.seen[caso] || []).includes(D.best) ? D.best : null)}
       <div><button class="btn ghost" id="lvOpen">Reabrir votación</button></div>`;
   } else {
-    body = `<p>Código <b style="font-family:var(--f-mono)">${code}</b>. Los residentes eligen A, B, C o D en su celular.</p>
+    body = `<p>Código <b style="font-family:var(--f-mono)">${code}</b>. ${A().esc(A().T.voters || "Los residentes")} eligen A, B, C o D en su celular.</p>
       <div><button class="btn primary" id="lvOpen">Abrir votación${A().nSteps(n) > 1 ? " de la decisión " + (S.step + 1) : " del caso " + (n + 1)}</button></div>`;
   }
   el.innerHTML = `<h3>Respuestas por celular</h3>${body}`;
