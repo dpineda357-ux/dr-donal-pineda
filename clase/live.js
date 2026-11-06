@@ -215,6 +215,7 @@ let last = null;
 function paint() {
   const S = A() && A().S; if (!S) return;
   renderPodium();
+  if (!(S.screen === "node" && S.phase === "voto")) autoKey = null; // al volver a la votación se abre otra vez
   if (S.screen === "cover") paintCover();
   else if (S.screen === "node" && S.phase === "voto") paintPanel(S);
   else if (S.screen === "debrief") paintDebrief();
