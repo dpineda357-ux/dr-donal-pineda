@@ -87,9 +87,15 @@ function namesHTML(v) {
   Object.entries(v || {}).forEach(([u, x]) => { if (g[x.op]) g[x.op].push([u, x.nombre, RES() && x.anio ? x.anio : ""]); });
   const bonos = (ses && ses.bonos) || {};
   const rows = A().KEYS.filter(k => g[k].length).map(k => `<div style="display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;margin:3px 0"><b style="min-width:1.4em">${k}</b>${g[k].sort((a, b) => a[1].localeCompare(b[1], "es")).map(([u, nm, an]) => `<span style="border:1px solid var(--line);border-radius:14px;padding:1px 4px 1px 9px;font-size:.82em">${an ? `<small class="muted">${esc2(an)}</small> ` : ""}${esc2(nm)}${bonos[u] ? ` <b>★${bonos[u]}</b>` : ""} <button class="btn ghost" data-bonus="${u}" title="+1 por argumentar bien" style="padding:0 6px;min-height:0;font-size:.9em">+1</button></span>`).join("")}</div>`).join("");
-  return `<div class="stack" style="gap:2px;margin-top:8px"><h3 style="font-size:.9em">Quién eligió cada opción</h3>${rows}<p class="muted" style="font-size:.75em;margin:2px 0 0">+1 = argumentó bien (suma al ranking).</p></div>`;
+  return `<div class="stack" style="gap:2px;margin-top:8px"><h3 style="font-size:.9em">Quién eligió cada opción</h3>${rows}<p class="muted" style="font-size:.75em;margin:2px 0 0">+1 = argumentó bien (suma al ranking).${ses && ses.ponente ? " Ponente: " + esc2(ses.ponente) + " (no entra al sorteo)." : " Sin nombre de ponente: podría salir sorteada."}</p></div>`;
 }
 const PICK_MS = 60000, CLOSE_MS = 120000;
+const norm = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+function isPon(nombre) {
+  if (!ses || !ses.ponente) return false;
+  const a = norm(nombre).split(" ").filter(Boolean), b = norm(ses.ponente).split(" ").filter(Boolean);
+  return !!a.length && !!b.length && (b.every(t => a.includes(t)) || a.every(t => b.includes(t)));
+}
 let locked = false;
 function lockPage() {
   if (locked) return; locked = true; podium = false;
@@ -106,14 +112,15 @@ function pickWho(n) {
   const top = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
   const r = arr => arr[Math.floor(Math.random() * arr.length)];
   const first = picks[1] && picks[1].u;
+  const okName = x => !isPon(x.nombre);
   const yr = (x, ys) => ys.includes(x.anio);
   let pool, tag;
   if (n === 1) {
-    pool = RES() ? all.filter(x => x.op === top && yr(x, ["R1"])) : [];
-    if (!pool.length) pool = all.filter(x => x.op === top);
+    pool = RES() ? all.filter(x => x.op === top && yr(x, ["R1"]) && okName(x)) : [];
+    if (!pool.length) pool = all.filter(x => x.op === top && okName(x));
     tag = "mayoría";
   } else {
-    const diff = all.filter(x => x.op !== top && x.u !== first);
+    const diff = all.filter(x => x.op !== top && x.u !== first && okName(x));
     pool = RES() ? diff.filter(x => yr(x, ["R2", "R3"])) : [];
     if (!pool.length) pool = diff;
     tag = "votó distinto";
@@ -180,6 +187,8 @@ function paintCover() {
         <b style="font-family:var(--f-mono);font-size:2.6em;letter-spacing:.08em">${code}</b>
         <span class="muted" style="font-size:.75em;word-break:break-all">${A().esc(url)}</span></div>
     </div>
+    <div class="stack" style="gap:4px"><label class="muted" style="font-size:.8em" for="lvPon">Nombre de la ponente (vota y suma puntos, pero no entra al sorteo)</label>
+      <input id="lvPon" value="${A().esc((ses && ses.ponente) || "")}" placeholder="Nombre y apellido tal como lo escribirá" style="font:inherit;padding:.5em .7em;border:1.5px solid var(--line);border-radius:8px;max-width:360px"></div>
     <div><button class="btn ghost" id="lvNew">Nuevo código</button></div></div>`;
   if (window.qrcode) { const q = qrcode(0, "M"); q.addData(url); q.make(); $id("lvQR").innerHTML = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }).replace("<svg", '<svg style="width:150px;height:150px"'); }
 }
@@ -284,6 +293,9 @@ async function downloadCSV() {
   a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
   a.download = `respuestas-${code}.csv`; a.click();
 }
+document.addEventListener("change", e => {
+  if (e.target && e.target.id === "lvPon" && code) update(ref(db, "sesiones/" + code), { ponente: e.target.value.trim().slice(0, 60) }).catch(() => {});
+});
 document.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.id === "lvStart") createSession();
