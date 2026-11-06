@@ -43,7 +43,7 @@ input:focus,select:focus{outline:3px solid var(--oA);outline-offset:1px}
       <input id="code" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="4 dígitos">
       <label for="name">Nombre y apellido</label>
       <input id="name" maxlength="60" required autocomplete="name" placeholder="Nombre y primer apellido">
-      <div class="muted" style="font-size:.8em">Su nombre se verá en la pantalla del ponente y suma a su puntaje.</div>
+      <div class="muted" style="font-size:.8em">Su nombre se verá en la pantalla y suma a su puntaje.</div>
       <label for="year">Año</label>
       <select id="year" required><option value="">Elegir</option><option>R1</option><option>R2</option><option>R3</option><option>Interno</option><option>Otro</option></select>
       <button class="btn" id="go" type="submit">Entrar</button>
@@ -55,13 +55,13 @@ input:focus,select:focus{outline:3px solid var(--oA);outline-offset:1px}
       <div class="muted" id="who"></div>
       <h1 id="qtitle">Esperando la pregunta…</h1>
       <div id="tbar" hidden style="height:12px;border-radius:6px;background:var(--line);overflow:hidden;margin:10px 0"><div id="tfill" style="height:100%;width:100%;background:var(--ues,#A6192E)"></div></div>
-      <div class="muted" id="hint">Mire la pantalla. Cuando el ponente abra la votación, aparecerán las opciones.</div>
+      <div class="muted" id="hint">Mire la pantalla. Cuando quien presenta abra la votación, aparecerán las opciones.</div>
       <div class="opts" id="opts"></div>
       <div class="status" id="st" role="status" aria-live="polite"></div>
     </div>
     <button class="link" id="leave">Salir de esta sesión</button>
   </section>
-  <p style="text-align:center;font-size:.7em;color:var(--muted)">versión 20261106n</p>
+  <p style="text-align:center;font-size:.7em;color:var(--muted)">versión 20261106o</p>
 </main>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -112,7 +112,7 @@ function paint() {
   const caso = ses ? ses.caso : "0";
   const sel = mine[caso];
   $("qtitle").textContent = ses && caso !== "0" ? "Caso " + caso.split("-")[0] + (ses.titulo ? ": " + ses.titulo : "") : "Esperando la pregunta…";
-  $("hint").textContent = open ? "Elija su respuesta. Puede cambiarla mientras la votación esté abierta." : (caso !== "0" ? "Votación cerrada. Mire la pantalla." : "Mire la pantalla. Cuando el ponente abra la votación, aparecerán las opciones.");
+  $("hint").textContent = open ? "Elija su respuesta. Puede cambiarla mientras la votación esté abierta." : (caso !== "0" ? "Votación cerrada. Mire la pantalla." : "Mire la pantalla. Cuando quien presenta abra la votación, aparecerán las opciones.");
   $("opts").innerHTML = (open || sel) ? ["A","B","C","D"].map(k => `<button class="opt ${k} ${sel===k?"sel":""}" data-k="${k}" ${open?"":"disabled"} aria-pressed="${sel===k}">${k}</button>`).join("") : "";
   $("st").className = "status" + (sel ? " ok" : "");
   $("st").textContent = sel ? "Respuesta registrada: " + sel : "";

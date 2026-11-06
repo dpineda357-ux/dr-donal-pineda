@@ -111,18 +111,22 @@ function pickWho(n) {
   const cnt = {}; all.forEach(x => { cnt[x.op] = (cnt[x.op] || 0) + 1; });
   const top = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
   const r = arr => arr[Math.floor(Math.random() * arr.length)];
-  const first = picks[1] && picks[1].u;
+  const taken = [picks[1], picks[2]].filter(p => p && p.u).map(p => p.u);
   const okName = x => !isPon(x.nombre);
   const yr = (x, ys) => ys.includes(x.anio);
+  // residentes: 1 mayoría, 2 votó distinto; internos: 1 votó distinto, 2 mayoría
+  const kind = RES() ? (n === 1 ? "may" : "dis") : (n === 1 ? "dis" : "may");
   let pool, tag;
-  if (n === 1) {
-    pool = RES() ? all.filter(x => x.op === top && yr(x, ["R1"]) && okName(x)) : [];
-    if (!pool.length) pool = all.filter(x => x.op === top && okName(x));
+  if (kind === "may") {
+    const base = all.filter(x => x.op === top && okName(x));
+    const fresh = base.filter(x => !taken.includes(x.u));
+    const prefer = RES() ? fresh.filter(x => yr(x, ["R1"])) : [];
+    pool = prefer.length ? prefer : fresh.length ? fresh : base;
     tag = "mayoría";
   } else {
-    const diff = all.filter(x => x.op !== top && x.u !== first && okName(x));
-    pool = RES() ? diff.filter(x => yr(x, ["R2", "R3"])) : [];
-    if (!pool.length) pool = diff;
+    const diff = all.filter(x => x.op !== top && !taken.includes(x.u) && okName(x));
+    const prefer = RES() ? diff.filter(x => yr(x, ["R2", "R3"])) : [];
+    pool = prefer.length ? prefer : diff;
     tag = "votó distinto";
     if (!pool.length) return { none: true };
   }
@@ -147,7 +151,31 @@ function paintTurns(S) {
     if (!pk) { pk = document.createElement("div"); pk.className = "pk"; box.appendChild(pk); }
     pk.dataset.sig = sig;
     pk.innerHTML = p.none ? `<span class="muted">Nadie votó distinto: pida un argumento a cualquiera.</span>`
-      : `<div class="nm">${esc2(p.nombre)} <span class="muted" style="font-size:.6em;font-weight:400">(${esc2(p.tag)})</span></div><div class="bar"><i data-until="${p.until}" style="width:${Math.max(0, Math.min(100, (p.until - Date.now()) / PICK_MS * 100))}%"></i></div><span class="muted pks" style="font-size:.8em"></span>`;
+      : `<div class="nm">${esc2(p.nombre)} <span class="muted" style="font-size:.6em;font-weight:400">(${esc2(p.tag)})</span></div><div class="bar"><i data-until="${p.until}" style="width:${Math.max(0, Math.min(100, (p.until - Date.now()) / PICK_MS * 100))}%"></i></div><div style="display:flex;gap:10px;align-items:center;margin-top:4px"><span class="muted pks" style="font-size:.8em"></span><button class="btn ghost" data-bonus="${p.u}" title="+1 por argumentar bien" style="padding:.1em .7em;font-size:.8em">+1 argumento</button><b class="pkb"></b></div>`;
+  });
+  paintBonus();
+}
+function paintBonus() {
+  const bonos = (ses && ses.bonos) || {};
+  [1, 2].forEach(n => { const p = picks[n], b = document.querySelector("#turn" + n + " .pkb"); if (b) b.textContent = p && p.u && bonos[p.u] ? "★" + bonos[p.u] : ""; });
+}
+function paintCols(S) {
+  if (!(S.screen === "node" && S.phase === "voto") || !document.querySelector(".vcol")) return;
+  const caso = vkey(), t = tally(votes), D = A().dec(S.node, S.step);
+  const show = !!(ses && !ses.cerrada && ses.caso === caso && !ses.abierta && t.n);
+  const bonos = (ses && ses.bonos) || {}, mx = Math.max(...A().KEYS.map(k => t.c[k]));
+  const g = { A: [], B: [], C: [], D: [] };
+  if (show) Object.entries(votes || {}).forEach(([u, x]) => { if (g[x.op]) g[x.op].push([x.nombre, u]); });
+  const seenBest = (S.seen[caso] || []).includes(D.best);
+  A().KEYS.forEach(k => {
+    const col = document.querySelector('.vcol[data-k="' + k + '"]'); if (!col) return;
+    const p = show && t.n ? Math.round(t.c[k] / t.n * 100) : 0;
+    $id("vp-" + k).textContent = show ? p + "%" : "";
+    $id("vn-" + k).textContent = show ? t.c[k] + (t.c[k] === 1 ? " voto" : " votos") + (seenBest && D.best === k ? " · ✓ recomendada" : "") : "";
+    $id("vb-" + k).style.width = p + "%";
+    col.classList.toggle("top", show && t.c[k] === mx && mx > 0);
+    const names = g[k].sort((a, b) => a[0].localeCompare(b[0], "es")), MAXC = 6;
+    $id("vc-" + k).innerHTML = names.slice(0, MAXC).map(([nm, u]) => `<span class="vchip">${esc2(nm)}${bonos[u] ? " ★" + bonos[u] : ""}</span>`).join("") + (names.length > MAXC ? `<span class="vchip">+${names.length - MAXC} más</span>` : "");
   });
 }
 async function loadRank() {
@@ -187,7 +215,7 @@ function paintCover() {
         <b style="font-family:var(--f-mono);font-size:2.6em;letter-spacing:.08em">${code}</b>
         <span class="muted" style="font-size:.75em;word-break:break-all">${A().esc(url)}</span></div>
     </div>
-    <div class="stack" style="gap:4px"><label class="muted" style="font-size:.8em" for="lvPon">Nombre ${RES() ? "del ponente" : "de la ponente"} (vota y suma puntos, pero no entra al sorteo)</label>
+    <div class="stack" style="gap:4px"><label class="muted" style="font-size:.8em" for="lvPon">Nombre de quien presenta, el ponente (vota y suma puntos, pero no entra al sorteo)</label>
       <input id="lvPon" value="${A().esc((ses && ses.ponente) || "")}" placeholder="Nombre y apellido tal como lo escribirá" style="font:inherit;padding:.5em .7em;border:1.5px solid var(--line);border-radius:8px;max-width:360px"></div>
     <div><button class="btn ghost" id="lvNew">Nuevo código</button></div></div>`;
   if (window.qrcode) { const q = qrcode(0, "M"); q.addData(url); q.make(); $id("lvQR").innerHTML = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }).replace("<svg", '<svg style="width:150px;height:150px"'); }
@@ -203,19 +231,18 @@ function paintPanel(S) {
   let body;
   if (mine && ses.abierta) {
     const { n: cnt } = tally(votes);
-    body = `<p>Votación abierta en los celulares. Código <b style="font-family:var(--f-mono)">${code}</b>.</p>
-      <div style="display:flex;align-items:center;gap:12px"><div style="flex:1;height:16px;border-radius:8px;background:var(--line,#ddd);overflow:hidden"><div id="lvBar" style="height:100%;width:100%;background:var(--ues,#A6192E)"></div></div><b id="lvSec" style="font-family:var(--f-mono);font-size:1.6em;min-width:2.2em;text-align:right">15</b></div>
-      <p style="font-family:var(--f-mono);font-size:2.2em;margin:0">${cnt}</p><p class="muted" style="margin-top:0">respuesta${cnt === 1 ? "" : "s"}</p>
-      <div><button class="btn" id="lvClose">Cerrar ahora</button></div>`;
+    body = `<b>Votación abierta</b><span class="muted">código <b style="font-family:var(--f-mono)">${code}</b></span>
+      <div style="flex:1;min-width:140px;height:16px;border-radius:8px;background:var(--line,#ddd);overflow:hidden"><div id="lvBar" style="height:100%;width:100%;background:var(--ues,#A6192E)"></div></div><b id="lvSec" style="font-family:var(--f-mono);font-size:1.6em;min-width:1.6em;text-align:right">15</b><span class="muted">s</span><span style="width:12px"></span>
+      <span><b style="font-family:var(--f-mono);font-size:1.6em">${cnt}</b> respuesta${cnt === 1 ? "" : "s"}</span><button class="btn" id="lvClose">Cerrar ahora</button>`;
   } else if (mine && tally(votes).n) {
-    body = `${barsHTML(votes, (S.seen[caso] || []).includes(D.best) ? D.best : null)}${namesHTML(votes)}
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn" id="lvPick1">Sortear 1 · ${RES() ? "un R1 de la mayoría" : "un interno de la mayoría"}</button><button class="btn" id="lvPick2">Sortear 2 · ${RES() ? "un R2/R3 que votó distinto" : "un interno que votó distinto"}</button><button class="btn" id="lvRank">Ver ranking</button></div>${rankHTML()}`;
+    const nn = tally(votes).n;
+    body = `<b>${nn} respuesta${nn === 1 ? "" : "s"}</b><button class="btn" id="lvPick1">Sortear 1 · ${RES() ? "un R1 de la mayoría" : "votó distinto"}</button><button class="btn" id="lvPick2">Sortear 2 · ${RES() ? "un R2/R3 que votó distinto" : "de la mayoría"}</button><button class="btn" id="lvRank">Ver ranking</button>${ses.ponente ? "" : `<span class="muted" style="font-size:.8em">Sin nombre de ponente: podría salir sorteado.</span>`}${rankData ? `<div style="flex-basis:100%">${rankHTML()}</div>` : ""}`;
   } else if (mine && !ses.abierta) {
-    body = `<p>Votación cerrada sin respuestas. Código <b style="font-family:var(--f-mono)">${code}</b>.</p>`;
+    body = `<b>Votación cerrada sin respuestas</b><span class="muted">código <b style="font-family:var(--f-mono)">${code}</b></span>`;
   } else {
-    body = `<p>Abriendo la votación… Código <b style="font-family:var(--f-mono)">${code}</b>.</p>`;
+    body = `<b>Abriendo la votación…</b><span class="muted">código <b style="font-family:var(--f-mono)">${code}</b></span>`;
   }
-  el.innerHTML = `<h3>Respuestas por celular</h3>${body}<p class="muted" style="font-size:.7em;margin-top:10px">versión ${VER}</p>`;
+  el.innerHTML = `${body}<span class="muted" style="font-size:.7em;margin-left:auto">v ${VER}</span>`;
 }
 async function paintDebrief() {
   const el = $id("liveDebrief"); if (!el || !code) return;
@@ -273,10 +300,10 @@ let last = null;
 function paint() {
   const S = A() && A().S; if (!S) return;
   renderPodium();
-  paintTurns(S);
+  paintTurns(S); paintBonus();
   if (!(S.screen === "node" && S.phase === "voto")) autoKey = null; // al volver a la votación se abre otra vez
   if (S.screen === "cover") paintCover();
-  else if (S.screen === "node" && S.phase === "voto") paintPanel(S);
+  else if (S.screen === "node" && S.phase === "voto") { paintPanel(S); paintCols(S); }
   else if (S.screen === "debrief") paintDebrief();
 }
 async function downloadCSV() {
