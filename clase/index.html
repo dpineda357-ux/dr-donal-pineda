@@ -77,6 +77,8 @@ const qc = new URLSearchParams(location.search).get("c");
 $("code").value = qc || ls.get("rc-code") || "";
 $("name").value = ls.get("rc-name") || "";
 $("year").value = ls.get("rc-year") || "";
+const qy = new URLSearchParams(location.search).get("y");
+if (qy) { $("year").value = qy; if ($("year").value === qy) { $("year").hidden = true; const lb = document.querySelector('label[for="year"]'); if (lb) lb.hidden = true; } }
 
 const authReady = new Promise(res => onAuthStateChanged(auth, u => { if (u) { uid = u.uid; res(); } }));
 signInAnonymously(auth).catch(e => { $("jerr").textContent = "Sin conexión con el servidor (" + e.code + ")."; });

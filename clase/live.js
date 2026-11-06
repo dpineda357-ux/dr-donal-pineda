@@ -123,7 +123,7 @@ function paintCover() {
   if (!ready) { el.innerHTML = `<p class="muted" style="font-size:.75em">Conectando respuestas por celular…</p>`; return; }
   if (!code) { el.innerHTML = `<button class="btn primary" id="lvStart">Activar respuestas por celular</button>`; return; }
   if (ses && ses.cerrada) { el.innerHTML = `<div class="stack" style="border-top:1px solid var(--line);padding-top:12px"><h3>Sesión finalizada</h3><p class="muted">El código ${code} ya no se puede usar. Cada rotación necesita su propio código.</p><div><button class="btn primary" id="lvNew">Nueva sesión con código nuevo</button> <button class="btn" id="lvPodium">Ver podio</button></div></div>`; return; }
-  const url = STUDENT_URL + "?c=" + code;
+  const url = STUDENT_URL + "?c=" + code + (/intern/i.test(A().T.voters || "") ? "&y=Interno" : "");
   el.innerHTML = `<div class="stack" style="border-top:1px solid var(--line);padding-top:12px">
     <h3>Respuestas por celular</h3>
     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
