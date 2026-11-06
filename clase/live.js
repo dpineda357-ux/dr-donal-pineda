@@ -166,6 +166,8 @@ function paintPanel(S) {
   } else if (mine && tally(votes).n) {
     body = `${barsHTML(votes, (S.seen[caso] || []).includes(D.best) ? D.best : null)}${namesHTML(votes)}${pickHTML(votes, D.best)}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn" id="lvPick">Sortear quién explica</button><button class="btn" id="lvRank">Ver ranking</button><button class="btn ghost" id="lvOpen">Reabrir votación (15 s)</button></div>${rankHTML()}`;
+  } else if (mine && !ses.abierta) {
+    body = `<p>Votación cerrada sin respuestas. Código <b style="font-family:var(--f-mono)">${code}</b>.</p><div><button class="btn primary" id="lvOpen">Reabrir votación (15 s)</button></div>`;
   } else {
     body = `<p>Abriendo la votación… Código <b style="font-family:var(--f-mono)">${code}</b>.</p>`;
   }
