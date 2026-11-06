@@ -205,9 +205,9 @@ function paintCover() {
   if (err) { el.innerHTML = `<p class="muted" style="font-size:.75em">${A().esc(err)}</p>`; return; }
   if (!ready) { el.innerHTML = `<p class="muted" style="font-size:.75em">Conectando respuestas por celular…</p>`; return; }
   if (!code) { el.innerHTML = `<button class="btn primary" id="lvStart">Activar respuestas por celular</button>`; return; }
-  if (ses && ses.cerrada) { el.innerHTML = `<div class="stack" style="border-top:1px solid var(--line);padding-top:12px"><h3>Sesión finalizada</h3><p class="muted">El código ${code} ya no se puede usar. Cada sesión necesita su propio código.</p><div><button class="btn" id="lvPodium">Ver podio</button></div></div>`; return; }
+  if (ses && ses.cerrada) { el.innerHTML = `<div class="stack" ><h3>Sesión finalizada</h3><p class="muted">El código ${code} ya no se puede usar. Cada sesión necesita su propio código.</p><div><button class="btn" id="lvPodium">Ver podio</button></div></div>`; return; }
   const url = STUDENT_URL + "?c=" + code + (/intern/i.test(A().T.voters || "") ? "&y=Interno" : /residen/i.test(A().T.voters || "") ? "&y=res" : "");
-  el.innerHTML = `<div class="stack" style="border-top:1px solid var(--line);padding-top:12px">
+  el.innerHTML = `<div class="stack" >
     <h3>Respuestas por celular</h3>
     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
       <div id="lvQR" style="background:#fff;padding:8px;border-radius:6px;line-height:0"></div>
@@ -215,10 +215,10 @@ function paintCover() {
         <b style="font-family:var(--f-mono);font-size:2.6em;letter-spacing:.08em">${code}</b>
         <span class="muted" style="font-size:.75em;word-break:break-all">${A().esc(url)}</span></div>
     </div>
-    <div class="stack" style="gap:4px"><label class="muted" style="font-size:.8em" for="lvPon">Nombre de quien presenta, el ponente (vota y suma puntos, pero no entra al sorteo)</label>
+    <div class="stack" style="gap:4px"><label class="muted" style="font-size:.8em" for="lvPon">Nombre de quien presenta (vota y suma puntos; no entra al sorteo)</label>
       <input id="lvPon" value="${A().esc((ses && ses.ponente) || "")}" placeholder="Nombre y apellido tal como lo escribirá" style="font:inherit;padding:.5em .7em;border:1.5px solid var(--line);border-radius:8px;max-width:360px"></div>
     <div><button class="btn ghost" id="lvNew">Nuevo código</button></div></div>`;
-  if (window.qrcode) { const q = qrcode(0, "M"); q.addData(url); q.make(); $id("lvQR").innerHTML = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }).replace("<svg", '<svg style="width:150px;height:150px"'); }
+  if (window.qrcode) { const q = qrcode(0, "M"); q.addData(url); q.make(); $id("lvQR").innerHTML = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }).replace("<svg", '<svg style="width:210px;height:210px"'); }
 }
 function paintPanel(S) {
   const el = $id("livePanel"); if (!el || !code || !ses) return;
