@@ -1,0 +1,1797 @@
+<meta charset="utf-8"><title>Síntoma mamario en el primer nivel: casos en vivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: una sola columna de proyección; barra de recorrido arriba (tronco + ramas), escena al centro, acciones del ponente abajo. */
+:root{
+  --bg:#f6f5f3; --surface:#ffffff; --ink:#1f1b1c; --muted:#5f5759; --line:#ddd7d6;
+  --ues:#a6192e; --ues-soft:#f6e3e5;
+  --ok:#1f7a4d; --ok-soft:#e1f2e8; --warn:#9a6200; --warn-soft:#fbf0d9; --bad:#b3261e; --bad-soft:#fbe4e2;
+  --oA:#1f5fbf; --oB:#1f8a5b; --oC:#c98a00; --oD:#7b3fb0;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --s:clamp(15px,1.15vw + 6px,22px);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#161314; --surface:#211d1e; --ink:#f1ecec; --muted:#b6abad; --line:#3b3436;
+  --ues:#e0596b; --ues-soft:#3a1d22;
+  --ok:#5cc28f; --ok-soft:#173326; --warn:#e6b04a; --warn-soft:#352a12; --bad:#f07a70; --bad-soft:#3a1c1a;
+  --oA:#6f9ef0; --oB:#4fc28d; --oC:#e6b33a; --oD:#b88ae6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161314; --surface:#211d1e; --ink:#f1ecec; --muted:#b6abad; --line:#3b3436;
+  --ues:#e0596b; --ues-soft:#3a1d22;
+  --ok:#5cc28f; --ok-soft:#173326; --warn:#e6b04a; --warn-soft:#352a12; --bad:#f07a70; --bad-soft:#3a1c1a;
+  --oA:#6f9ef0; --oB:#4fc28d; --oC:#e6b33a; --oD:#b88ae6; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:var(--s);line-height:1.45}
+.wrap{max-width:1280px;margin:0 auto;padding-inline:clamp(16px,3vw,48px);padding-block:18px 40px;display:flex;flex-direction:column;gap:22px}
+header.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:3px solid var(--ues);padding-bottom:12px}
+header.top img{width:44px;height:auto;border-radius:3px;background:#fff}
+.inst{display:flex;flex-direction:column;line-height:1.15;min-width:0;flex:1}
+.inst b{font-family:var(--f-display);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.78em;color:var(--ues)}
+.inst span{font-size:.72em;color:var(--muted)}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:inherit}
+.btn{font-family:var(--f-body);font-weight:600;font-size:.82em;padding:.55em 1em;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn:hover{border-color:var(--ues)}
+.btn.primary{background:var(--ues);border-color:var(--ues);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent}
+.btn:focus-visible,.opt:focus-visible,.cnt button:focus-visible{outline:3px solid var(--oA);outline-offset:2px}
+.btn[aria-pressed="true"]{background:var(--ues-soft);border-color:var(--ues)}
+
+/* recorrido */
+.track{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px}
+.stop{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:84px;flex:1}
+.clock{align-self:flex-end;font-family:var(--f-mono);font-size:1.9em;font-weight:700;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:2px 14px;font-variant-numeric:tabular-nums;margin-top:-12px}
+.clock.over{color:#fff;background:var(--bad);border-color:var(--bad)}
+.clock.blink{animation:clkblink .8s steps(2,start) infinite}
+@keyframes clkblink{50%{opacity:.25}}
+.pk{margin-top:8px}.pk .nm{font-size:1.3em;font-weight:700}.pk .bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:6px}.pk .bar i{display:block;height:100%;background:#c62828;width:100%}
+.dot{width:18px;height:18px;border-radius:50%;border:3px solid var(--line);background:var(--bg)}
+.stop.done .dot{background:var(--ues);border-color:var(--ues)}
+.stop.now .dot{border-color:var(--ues);box-shadow:0 0 0 5px var(--ues-soft)}
+.stop small{font-family:var(--f-mono);font-size:.62em;color:var(--muted);white-space:nowrap}
+.stop.now small{color:var(--ues);font-weight:500}
+.seg{height:3px;background:var(--line);flex:1;min-width:20px;margin-top:-18px}
+.seg.done{background:var(--ues)}
+.branches{display:flex;gap:3px;height:10px}
+.br{width:9px;height:9px;border-radius:2px}
+
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:2.6em;line-height:1.02;font-weight:700}
+h2{font-size:1.75em;line-height:1.1;font-weight:700}
+h3{font-size:1.05em;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--f-mono);font-size:.7em;letter-spacing:.12em;text-transform:uppercase;color:var(--ues)}
+.stack{display:flex;flex-direction:column;gap:14px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:22px}
+.cols>*{min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+
+/* expediente */
+.chart{font-family:var(--f-mono);font-size:.82em;width:100%;border-collapse:collapse}
+.chart td{padding:.38em .5em;border-bottom:1px dashed var(--line);vertical-align:top}
+.chart td:first-child{color:var(--muted);width:42%}
+.chart .hi{color:var(--bad);font-weight:500}
+.chart .new{background:var(--warn-soft)}
+.tablewrap{overflow-x:auto}
+
+/* opciones */
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:12px}
+.opt{display:flex;gap:14px;align-items:flex-start;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95em;min-width:0}
+.opt .k{flex:none;width:2em;height:2em;border-radius:6px;display:grid;place-items:center;color:#fff;font-family:var(--f-display);font-weight:700;font-size:1.1em}
+.opt.pick{cursor:pointer}
+.opt.pick:hover{border-color:var(--ues)}
+.opt.seen{opacity:.72}
+.k.A{background:var(--oA)} .k.B{background:var(--oB)} .k.C{background:var(--oC)} .k.D{background:var(--oD)}
+
+/* conteo */
+.tally{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.tally th{font-family:var(--f-display);font-weight:600;font-size:.85em;color:var(--muted);text-align:center;padding:.3em}
+.tally th:first-child{text-align:left}
+.tally td{padding:.35em;border-top:1px solid var(--line);text-align:center}
+.tally td:first-child{text-align:left}
+.cnt{display:inline-flex;align-items:center;gap:6px}
+.cnt button{width:1.8em;height:1.8em;border-radius:6px;border:1.5px solid var(--line);background:var(--bg);font-weight:700;line-height:1}
+.cnt output{min-width:1.6em;font-family:var(--f-mono);font-weight:500;font-size:1.05em}
+.timer{font-family:var(--f-mono);font-size:1.6em;font-variant-numeric:tabular-nums}
+.timer.end{color:var(--bad)}
+
+/* barras */
+.bars{display:flex;flex-direction:column;gap:10px}
+.barrow{display:grid;grid-template-columns:5.5em 1fr 3.5em;gap:10px;align-items:center}
+.barrow b{font-family:var(--f-display);font-size:.95em}
+.bar{display:flex;height:1.6em;border-radius:5px;overflow:hidden;background:var(--line)}
+.bar span{display:grid;place-items:center;color:#fff;font-size:.7em;font-weight:600;font-family:var(--f-mono);transition:width .5s ease}
+.bar .A{background:var(--oA)} .bar .B{background:var(--oB)} .bar .C{background:var(--oC)} .bar .D{background:var(--oD)}
+.barrow small{font-family:var(--f-mono);color:var(--muted);font-size:.7em}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.75em;color:var(--muted)}
+.legend i{display:inline-block;width:.9em;height:.9em;border-radius:2px;margin-right:4px;vertical-align:-1px}
+
+/* discusión */
+.turns{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.turn{border-top:4px solid var(--ues);background:var(--surface);border-radius:0 0 8px 8px;padding:12px 14px;font-size:.88em;display:flex;flex-direction:column;gap:6px}
+.turn b{font-family:var(--f-display);font-size:1.05em}
+
+/* consecuencia */
+.verdict{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:.8em;padding:.35em .8em;border-radius:6px}
+.v-ok{background:var(--ok-soft);color:var(--ok)} .v-warn{background:var(--warn-soft);color:var(--warn)} .v-bad{background:var(--bad-soft);color:var(--bad)}
+.story{font-size:1.05em;border-left:4px solid var(--line);padding-left:16px}
+.lesson{background:var(--ues-soft);border-radius:10px;padding:14px 18px}
+.lesson h3{color:var(--ues)}
+ul.tight{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.k.mini{display:inline-grid;width:1.4em;height:1.4em;border-radius:4px;color:#fff;font-size:.8em;place-items:center;margin-right:8px;vertical-align:-2px;font-family:var(--f-display);font-weight:700}
+ul.others{list-style:none;padding:0}
+.fold{font-family:var(--f-mono);font-size:.78em;color:var(--muted)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);padding-top:16px}
+.actions .sp{flex:1}
+
+/* notas */
+.notes{border:2px dashed var(--warn);background:var(--warn-soft);border-radius:10px;padding:14px 18px;font-size:.85em}
+.notes h3{color:var(--warn)}
+
+/* portada */
+.cover{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.cover{grid-template-columns:1fr}}
+.rules{counter-reset:r;display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.rules li{counter-increment:r;display:grid;grid-template-columns:2em 1fr;gap:10px;font-size:.9em}
+.rules li::before{content:counter(r);font-family:var(--f-display);font-weight:700;color:var(--ues);font-size:1.3em;line-height:1.1}
+.cards{display:flex;gap:8px;flex-wrap:wrap}
+.cards .k{width:2.4em;height:3.2em;border-radius:6px;display:grid;place-items:center;color:#fff;font-family:var(--f-display);font-weight:700;font-size:1.2em}
+.fig{margin:0 0 .8em;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#0b0b0d}
+.fig svg,.fig img{display:block;width:100%;height:auto;max-height:210px;object-fit:contain}
+.fig figcaption{font-size:.72em;color:#b9b9bf;padding:.35em .7em;background:#141417}
+.integ td{vertical-align:top;text-align:left;font-size:.82em}
+.integ td.lab{font-weight:600;white-space:nowrap}
+.integ button.rev{font:inherit;width:100%;min-height:2.4em;text-align:left;background:var(--ues-soft);color:var(--muted);border:1.5px dashed var(--ues);border-radius:8px;cursor:pointer;padding:.3em .5em}
+.integ .shown{display:block;padding:.3em .1em}
+.sumtable{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.85em}
+.sumtable th,.sumtable td{padding:.45em .6em;border-bottom:1px solid var(--line);text-align:center}
+.sumtable th:first-child,.sumtable td:first-child{text-align:left}
+.sumtable th{font-family:var(--f-display);color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+@media (max-width:640px){.stop small{display:none}.stop.now small{display:block}.stop{min-width:28px}}
+@media (prefers-reduced-motion: reduce){.bar span{transition:none}}
+
+/* ===== proyección oscura, encabezado compacto y votación en columnas (2026-11-06) ===== */
+.wrap{gap:12px;padding-block:10px 24px;max-width:none}
+header.top{flex-wrap:nowrap;gap:12px;padding-bottom:8px}
+header.top img{width:36px}
+.inst{flex:none;max-width:11em}.inst span{display:none}
+.track{flex:1;min-width:0;padding-bottom:0;overflow:visible;padding-inline:14px}
+.stop{min-width:0}.stop small{font-size:.58em}.branches{height:6px}.seg{margin-top:-14px}
+.clock{align-self:center;margin-top:0;font-size:1.7em;flex:none;white-space:nowrap}
+.tools{flex:none;flex-wrap:nowrap}.tools .btn{font-size:.68em;padding:.4em .7em}
+@media (max-width:820px){header.top{flex-wrap:wrap}.track{flex-basis:100%;order:5}}
+.eyebrow{font-size:.9em;font-weight:600}
+.eyebrow.big{font-size:1.35em;color:#fff;background:#a6192e;padding:.35em .9em;border-radius:8px;align-self:flex-start;letter-spacing:.05em;font-weight:700}
+.hl{display:flex;align-items:baseline;gap:4px 18px;flex-wrap:wrap}
+.hl h2{font-size:1.5em}.hl .hq{font-size:1.1em;color:var(--muted);flex:1 1 20em}
+.vstrip{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:.9em}
+.vcols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:900px){.vcols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.vcol{--c:var(--oA);background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--c);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.vcol[data-k=B]{--c:var(--oB)}.vcol[data-k=C]{--c:var(--oC)}.vcol[data-k=D]{--c:var(--oD)}
+.vcol.top{box-shadow:0 0 0 2px var(--c),0 0 26px color-mix(in srgb,var(--c) 40%,transparent)}
+.vh{display:flex;align-items:center;gap:10px}
+.vh .k{flex:none;width:2em;height:2em;border:0;border-radius:8px;color:#fff;font-weight:700;font-family:var(--f-display);font-size:1.1em;background:var(--c)}
+.vp{font-family:var(--f-display);font-weight:700;font-size:2.6em;line-height:1;color:var(--c);margin-left:auto}
+.vn{font-size:.78em;color:var(--muted);min-height:1.2em}
+.vb{height:8px;background:var(--line);border-radius:4px;overflow:hidden}.vb i{display:block;height:100%;width:0;background:var(--c);transition:width .5s}
+.vt{font-size:.9em;margin:0;max-width:none}
+.vchips{display:flex;flex-wrap:wrap;gap:4px}
+.vchip{font-size:.76em;border:1px solid var(--line);border-radius:12px;padding:1px 9px;background:var(--bg)}
+.turns3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:900px){.turns3{grid-template-columns:1fr}}
+.turns3 .turn{padding:8px 12px;font-size:.82em}
+.turn .pk .nm{font-size:1.5em}
+@media (max-height:820px){:root{--s:15px}.vp{font-size:2.1em}.vcol{padding:8px 10px;gap:5px}.wrap{gap:8px}.hl h2{font-size:1.3em}.story{font-size:.95em;padding-left:12px}ul.tight{gap:3px}.lesson{padding:8px 14px}.panel{padding:10px 14px}.actions{padding-top:8px}.eyebrow.big{font-size:1.1em;padding:.25em .8em}.stack{gap:8px}}
+
+.cover2{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.cover2{grid-template-columns:1fr}}
+.cover2 h1{font-size:2.1em}.cover2 p{max-width:none;font-size:.95em}
+.cover2 .rules{gap:7px}.cover2 .rules li{font-size:.85em}
+.agchips{display:flex;flex-wrap:wrap;gap:4px}
+.ag{font-size:.72em;border:1px solid var(--line);border-radius:8px;padding:2px 8px;background:var(--surface);white-space:nowrap}
+.ag.tot{border-color:var(--ues);color:var(--ues)}
+.cover2 .cards .k{width:2em;height:2.4em;font-size:1.1em}
+</style>
+
+<div class="wrap" id="app">
+  <header class="top">
+    <img alt="Escudo de la Universidad de El Salvador" src="data:image/jpeg;base64,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">
+    <div class="inst"><b>Universidad de El Salvador · Ginecología y Obstetricia</b><span>Seminario de internos · Síntoma mamario y triple test · Sesión de casos</span></div>
+    <nav class="track" id="track" aria-label="Recorrido del caso"></nav>
+    <div class="clock" id="clock" hidden></div>
+    <div class="tools">
+      <button class="btn ghost" id="bNotes" aria-pressed="false" title="Tecla N">Notas del ponente</button>
+      <button class="btn ghost" id="bFull" title="Tecla F">Pantalla completa</button>
+      <button class="btn ghost" id="bReset">Reiniciar</button>
+    </div>
+  </header>
+  <main id="scene" class="stack"></main>
+</div>
+
+<script>
+try{ if(!document.documentElement.dataset.theme) document.documentElement.dataset.theme="dark"; }catch(e){}
+const KEYS = ["A","B","C","D"];
+const T = {
+ "title": "Síntoma mamario en el primer nivel: casos en vivo",
+ "sub": "Seminario de internos · Síntoma mamario y triple test · Sesión de casos",
+ "store": "triple-test-internos-sesion-v1",
+ "eyebrow": "Síntoma mamario · Internos · 9 casos en vivo",
+ "h1": "Usted está solo en la UCSF",
+ "intro": "Su turno en la UCSF: 9 pacientes, 2 decisiones cada una. Cada interno vota en su celular con su nombre y apellido, el programa sortea quién explica y cada decisión correcta suma puntos.",
+ "timing": "Cada caso: 6 min con 2 decisiones. Decisión 1: lectura, voto y discusión (4 min). Decisión 2: evolución de la misma paciente, voto y respuesta breve (2 min). Tras cada caso, la regla en pantalla: 30 s, sin exposición. Cierre de casos y ranking: 6 min.",
+ "rules": [
+  "Cada interno, y también quien presenta, vota en su celular con nombre y apellido, todos a la vez y sin hablar.",
+  "La pantalla muestra el % por opción y, al cerrar, quién eligió cada una.",
+  "Discusión: el programa sortea al azar primero a uno que votó distinto y luego a uno de la mayoría (quien presenta no entra al sorteo); después quien presenta analiza el caso.",
+  "Puntaje: 1 por decisión correcta y +1 por argumentar bien; ranking al cierre.",
+  "Cada respuesta termina en: hoy hago…, pido…, refiero a… con prioridad…, le digo…"
+ ],
+ "cardsNote": "Sin celular o sin señal: levantar 1 a 4 dedos.",
+ "voteNote": "Cada interno vota en su celular. Sin conexión: todos levantan 1 a 4 dedos al mismo tiempo.",
+ "voters": "Los internos",
+ "turns": [
+  [
+   "1 · Un interno que votó distinto (sorteado)",
+   "Dice qué dato le pesó distinto."
+  ],
+  [
+   "2 · Un interno de la mayoría (sorteado)",
+   "Defiende su opción con un dato del caso."
+  ],
+  [
+   "3 · Análisis del ponente",
+   "Quien presenta analiza el caso (diagnóstico, conducta, prioridad y qué le dice a la paciente) y el docente evalúa su criterio."
+  ]
+ ],
+ "noNotes": true,
+ "noNav": true,
+ "closeLabel": "Cierre de casos y ranking",
+ "closeMin": 6,
+ "closeQ": "¿Cuál de estos errores es el más probable en su año social y qué hará para no cometerlo?",
+ "closeAfter": "Después: ranking y podio de los tres mejores puntajes.",
+ "base": "Base: ACR Appropriateness Criteria, masa palpable 2022; ACR BI-RADS 5.ª ed.; ABM protocolo 36 (2022); NICE NG12; III Consenso B3 (Elfgen 2023); NCCN; AJCC 8.ª ed. (T4d). Prioridades orientadoras: ajustar a la red RIIS."
+};
+const AGENDA = [["Pre-test (10 min) y entrada con el QR",12,false],["Caso 1",6,true],["Caso 2",6,true],["Caso 3",6,true],["Caso 4",6,true],["Caso 5",6,true],["Caso 6",6,true],["Caso 7",6,true],["Caso 8",6,true],["Caso 9",6,true],["Cierre de casos y ranking",6,true],["Cierre",3,false]];
+const CASES = [
+ {
+  "min": 6,
+  "title": "El nódulo que se mueve",
+  "vignette": "Mujer de 23 años, nuligesta, sin antecedentes familiares de cáncer. Se palpó hace 3 meses un nódulo en la mama izquierda. Su UCSF no tiene ultrasonido.",
+  "data": [
+   [
+    "Mama izquierda",
+    "Radio de las 2, a 4 cm del pezón: nódulo de 2 × 2 cm"
+   ],
+   [
+    "Características",
+    "Elástico, liso, móvil, no doloroso",
+    true
+   ],
+   [
+    "Piel y pezón",
+    "Sin alteraciones"
+   ],
+   [
+    "Axilas",
+    "Sin ganglios palpables"
+   ]
+  ],
+  "q": "¿Qué hace hoy con esta paciente?",
+  "best": "C",
+  "options": {
+   "A": "Mamografía bilateral en el hospital: es el estudio de referencia para un nódulo palpable a cualquier edad.",
+   "B": "Referencia urgente a cirugía para extirparlo: un nódulo sólido palpable necesita histología pronto.",
+   "C": "Documentar el examen con los 9 datos y pedir ultrasonido de mama; mamografía no a su edad.",
+   "D": "Reexaminar después de su próxima menstruación, sin imagen: a los 23 años casi siempre es fibroadenoma."
+  },
+  "out": {
+   "A": {
+    "v": "warn",
+    "tag": "Estudio equivocado para la edad",
+    "brief": "Antes de los 30 años el primer estudio es el ultrasonido; la mamografía rinde poco en mama densa juvenil.",
+    "story": "La mamografía informa mamas extremadamente densas, BI-RADS 0. Igual hay que pedir ultrasonido: dos estudios, radiación sin beneficio y un mes perdido.",
+    "lesson": [
+     "Menor de 30 años: ultrasonido primero (ACR 2022). De 30 a 39: ultrasonido y/o mamografía. Desde 40: mamografía diagnóstica más ultrasonido."
+    ]
+   },
+   "B": {
+    "v": "warn",
+    "tag": "Sobrerreferencia",
+    "brief": "Clínica benigna en mujer joven: primero imagen; la urgencia se reserva para lo sospechoso.",
+    "story": "Ocupa un cupo urgente de cirugía. El especialista pide el ultrasonido que faltaba y la regresa: tres meses después aún no tiene diagnóstico.",
+    "lesson": [
+     "Cada referencia urgente sin indicación retrasa a la paciente que sí la necesitaba.",
+     "Extirpar un fibroadenoma pequeño y estable es sobretratamiento."
+    ]
+   },
+   "C": {
+    "v": "ok",
+    "tag": "Conducta recomendada",
+    "brief": "",
+    "story": "Nota: «Mama izquierda, radio de las 2, a 4 cm del pezón, nódulo de 2 × 2 cm, elástico, liso, móvil, no doloroso; piel y pezón normales; axilas negativas». Al mes trae el ultrasonido: nódulo ovalado, circunscrito, paralelo a la piel, de 2.1 cm, BI-RADS 3. Clínica benigna e imagen probablemente benigna: triple test concordante. Plan: ultrasonido de control a los 6 meses con la fecha anotada en el expediente.",
+    "lesson": [
+     "Lo que no queda escrito con lado, hora, distancia al pezón y tamaño no se puede comparar en el control.",
+     "BI-RADS 3 concordante con clínica benigna: control a 6, 12 y 24 meses; la biopsia es opcional."
+    ]
+   },
+   "D": {
+    "v": "warn",
+    "tag": "Triple test incompleto",
+    "brief": "Un nódulo definido que persiste 3 meses necesita imagen: sin ella no hay triple test.",
+    "story": "Después de la menstruación el nódulo sigue igual. Se pierde otro mes y la paciente vuelve a consultar sin un solo estudio.",
+    "lesson": [
+     "Reexaminar tras la menstruación sirve para nodularidad difusa, no para un nódulo bien definido que ya persistió."
+    ]
+   }
+  },
+  "notes": [
+   "Pedir a un interno que dicte la nota del examen en voz alta con los 9 datos.",
+   "¿Por qué no mamografía a los 23 años?"
+  ],
+  "steps": [
+   {
+    "bridge": "Regresa a los 6 meses con el ultrasonido de control. Ella dice que «lo siente más grande».",
+    "data": [
+     [
+      "Ultrasonido previo",
+      "2.1 cm, ovalado, circunscrito, BI-RADS 3"
+     ],
+     [
+      "Ultrasonido actual",
+      "3.4 cm, ovalado, circunscrito, BI-RADS 3",
+      true
+     ],
+     [
+      "Examen",
+      "Nódulo móvil, sin cambios en piel; axilas negativas"
+     ]
+    ],
+    "q": "¿Qué hace ahora?",
+    "best": "A",
+    "options": {
+     "A": "Referencia preferente para biopsia con aguja gruesa: creció y ya no cumple para seguir vigilándolo.",
+     "B": "Repetir el ultrasonido en 3 meses: creció, pero conserva bordes circunscritos y sigue siendo BI-RADS 3.",
+     "C": "Referencia urgente a oncología: un nódulo que crece en 6 meses es cáncer hasta demostrar lo contrario.",
+     "D": "Tranquilizarla y espaciar el control a un año: los fibroadenomas crecen en las mujeres jóvenes."
+    },
+    "out": {
+     "A": {
+      "v": "ok",
+      "tag": "Conducta recomendada",
+      "brief": "",
+      "story": "Creció 60 % en 6 meses y supera 3 cm: deja de ser candidata a vigilancia. En el diferencial está el tumor filodes, que se parece al fibroadenoma en la imagen y crece rápido. La biopsia con aguja gruesa confirma un fibroadenoma celular; el especialista programa la escisión. A la paciente: «No parece cáncer, pero creció y necesitamos saber qué es; por eso la envío a biopsia».",
+      "lesson": [
+       "BI-RADS 3 que crece, que cambia o que no podrá seguirse: referencia preferente para biopsia.",
+       "Nódulo mayor de 3 cm o de crecimiento rápido en mujer joven: pensar en tumor filodes."
+      ]
+     },
+     "B": {
+      "v": "bad",
+      "tag": "Vigilancia que ya no aplica",
+      "brief": "El crecimiento documentado saca la lesión del seguimiento, aunque los bordes sigan siendo regulares.",
+      "story": "A los 3 meses mide 5 cm. La escisión ahora es más amplia y deja deformidad.",
+      "lesson": [
+       "La categoría se reevalúa en cada control: el crecimiento cambia la conducta aunque la forma no cambie."
+      ]
+     },
+     "C": {
+      "v": "warn",
+      "tag": "Prioridad excesiva",
+      "brief": "Necesita biopsia, pero sin datos sospechosos la prioridad es preferente, no urgente.",
+      "story": "La biopsia se hace pronto, pero la paciente pasa dos semanas convencida de tener cáncer y ocupa un cupo urgente.",
+      "lesson": [
+       "La prioridad se justifica con el hallazgo: crecimiento sin rasgos sospechosos es preferente."
+      ]
+     },
+     "D": {
+      "v": "bad",
+      "tag": "Tranquilización falsa",
+      "brief": "Tranquilizar sin explicar el crecimiento deja sin estudiar una lesión que puede ser filodes.",
+      "story": "Al año mide 7 cm y deforma la mama. La biopsia informa tumor filodes borderline.",
+      "lesson": [
+       "El seguimiento solo sirve si alguien compara las mediciones y actúa cuando cambian."
+      ]
+     }
+    },
+    "notes": [
+     "¿Qué datos del Anexo C debe llevar esta referencia?",
+     "¿Qué le dice a la paciente para que no abandone la cita?"
+    ]
+   }
+  ]
+ },
+ {
+  "min": 6,
+  "title": "La familia de la paciente",
+  "vignette": "Mujer de 29 años, asintomática. Su madre murió de cáncer de mama diagnosticado a los 38 años y una tía materna tuvo cáncer de ovario a los 50. Pide «una mamografía de una vez».",
+  "data": [
+   [
+    "Madre",
+    "Cáncer de mama a los 38 años",
+    true
+   ],
+   [
+    "Tía materna",
+    "Cáncer de ovario a los 50 años",
+    true
+   ],
+   [
+    "Examen",
+    "Normal"
+   ],
+   [
+    "Hermanas",
+    "Dos, de 25 y 33 años, sanas"
+   ]
+  ],
+  "q": "¿Qué hace hoy?",
+  "best": "A",
+  "options": {
+   "A": "Referir a mastología u oncología con el árbol familiar: madre con cáncer antes de los 50 y tía con ovario cumplen criterios.",
+   "B": "Mamografía anual desde ahora: con la madre afectada el tamizaje se adelanta 10 años respecto de la edad habitual.",
+   "C": "Explicar que el tamizaje empieza a los 40 y que el antecedente de la madre no cambia su riesgo de cáncer.",
+   "D": "Ultrasonido mamario cada 6 meses en la UCSF desde ahora y hasta que cumpla 40 años, con examen clínico anual."
+  },
+  "out": {
+   "A": {
+    "v": "ok",
+    "tag": "Conducta recomendada",
+    "brief": "",
+    "story": "Madre con cáncer de mama a los 50 años o antes y tía con cáncer de ovario a cualquier edad cumplen criterios NCCN de riesgo hereditario. En la red pública no hay consulta de genética: se refiere preferente a mastología u oncología con el árbol familiar (parentesco, tipo de cáncer y edad al diagnóstico), que decide la valoración y el seguimiento. La mamografía sola no es el plan para una posible portadora joven.",
+    "lesson": [
+     "Cáncer de ovario en la familia siempre hace pensar en riesgo hereditario.",
+     "Al referir se anotan parentesco, tipo de cáncer y edad al diagnóstico."
+    ]
+   },
+   "B": {
+    "v": "warn",
+    "tag": "Plan incompleto",
+    "brief": "Adelantar el tamizaje no sustituye la valoración del riesgo hereditario, que cambia todo el plan.",
+    "story": "Mamografías anuales en mama densa joven; nadie valora el riesgo hasta que la hermana enferma.",
+    "lesson": [
+     "Primero definir el riesgo; después el tipo de vigilancia."
+    ]
+   },
+   "C": {
+    "v": "bad",
+    "tag": "Riesgo ignorado",
+    "brief": "Una madre con cáncer a los 38 y una tía con cáncer de ovario cambian el riesgo de forma importante.",
+    "story": "A los 36 años consulta por un nódulo: carcinoma triple negativo, portadora de BRCA1.",
+    "lesson": [
+     "El tamizaje de riesgo promedio no aplica a familias con criterios hereditarios."
+    ]
+   },
+   "D": {
+    "v": "warn",
+    "tag": "Vigilancia improvisada",
+    "brief": "El ultrasonido no es el estudio de vigilancia en alto riesgo y no define si es portadora.",
+    "story": "Ultrasonidos cada 6 meses con hallazgos indeterminados y biopsias innecesarias.",
+    "lesson": [
+     "Alto riesgo: valoración por mastología u oncología, no ultrasonido seriado en la UCSF."
+    ]
+   }
+  },
+  "notes": [
+   "¿Qué antecedentes familiares obligan a referir por riesgo hereditario?"
+  ],
+  "steps": [
+   {
+    "bridge": "Dos semanas después viene su hermana de 33 años, sana y sin síntomas. Pregunta si ella también debe hacerse algo: «mi mamá y mi tía tuvieron cáncer».",
+    "data": [
+     [
+      "Hermana",
+      "33 años, asintomática, examen mamario normal"
+     ],
+     [
+      "Familia",
+      "Madre con cáncer de mama a los 38 y tía materna con cáncer de ovario a los 50",
+      true
+     ],
+     [
+      "Mamografía previa",
+      "Nunca"
+     ]
+    ],
+    "q": "¿Qué hace con ella?",
+    "best": "C",
+    "options": {
+     "A": "Mamografía de tamizaje ahora en la UCSF y control anual: el antecedente de la madre adelanta el tamizaje a su edad.",
+     "B": "Explicarle que, sin síntomas ni hallazgos en el examen, empiece el tamizaje a los 40 como cualquier otra mujer.",
+     "C": "Referir a mastología u oncología con el árbol familiar: cumple el mismo criterio que su hermana, sin esperar a los 40.",
+     "D": "Ultrasonido mamario anual en la UCSF hasta los 40 años y luego mamografía, sin otra gestión adicional."
+    },
+    "out": {
+     "A": {
+      "v": "warn",
+      "tag": "Plan incompleto",
+      "brief": "Tamizar sin valorar el riesgo deja sin definir el plan de una posible portadora.",
+      "story": "Mamografía anual normal en mama densa; nadie ha definido su riesgo ni el tipo de vigilancia que le corresponde.",
+      "lesson": [
+       "Primero definir el riesgo; después el tipo de vigilancia."
+      ]
+     },
+     "B": {
+      "v": "bad",
+      "tag": "Riesgo ignorado",
+      "brief": "Sana y asintomática no descarta el riesgo hereditario: cumple el mismo criterio que la paciente.",
+      "story": "Empieza el tamizaje a los 40; a los 38 consulta por un nódulo: carcinoma triple negativo.",
+      "lesson": [
+       "El criterio familiar se aplica a toda la familia, no solo a la paciente índice."
+      ]
+     },
+     "C": {
+      "v": "ok",
+      "tag": "Conducta recomendada",
+      "brief": "",
+      "story": "Se refiere con el árbol familiar completo (parentesco, tipo de cáncer, edad al diagnóstico) y la pregunta clara: «valoración de riesgo hereditario». Se le explica por qué no basta el tamizaje habitual y se anota la gestión en el expediente. Se ofrece lo mismo a la tercera hermana.",
+      "lesson": [
+       "Una familia con criterios se refiere completa, no solo la paciente índice.",
+       "El expediente anota la gestión y la fecha en que se confirma que asistió."
+      ]
+     },
+     "D": {
+      "v": "warn",
+      "tag": "Vigilancia improvisada",
+      "brief": "El ultrasonido anual no es el estudio de vigilancia en alto riesgo ni define si es portadora.",
+      "story": "Ultrasonidos anuales con hallazgos indeterminados y biopsias innecesarias, sin una valoración del riesgo.",
+      "lesson": [
+       "Alto riesgo: valoración por el especialista, no ultrasonido seriado en la UCSF."
+      ]
+     }
+    },
+    "notes": [
+     "¿Qué datos del árbol familiar anota al referirla?"
+    ]
+   }
+  ]
+ },
+ {
+  "min": 6,
+  "title": "La mamografía que salió normal",
+  "vignette": "Mujer de 52 años. Hace 3 semanas se palpó un nódulo en la mama izquierda. Trae una mamografía de tamizaje de hace 5 meses, informada BI-RADS 1 en mamas heterogéneamente densas, y dice: «la mamografía salió normal, entonces es un quiste».",
+  "data": [
+   [
+    "Mama izquierda",
+    "Radio de las 2, a 6 cm del pezón: nódulo de 2 cm"
+   ],
+   [
+    "Características",
+    "Duro, bordes irregulares, fijo",
+    true
+   ],
+   [
+    "Piel",
+    "Retracción leve sobre el nódulo"
+   ],
+   [
+    "Axila",
+    "Ganglio firme de 1 cm"
+   ]
+  ],
+  "q": "¿Qué hace hoy?",
+  "best": "A",
+  "options": {
+   "A": "Referencia urgente para imagen diagnóstica y biopsia, con la nota completa: el tamizaje previo no descarta una masa palpable.",
+   "B": "Ultrasonido en la red y decidir según el resultado: si sale benigno, la tranquiliza y la controla en 6 meses con examen.",
+   "C": "Tranquilizarla y repetir la mamografía de tamizaje a los 12 meses, porque la de hace 5 meses salió normal y sin hallazgos.",
+   "D": "Mamografía diagnóstica de esa mama en la próxima jornada del hospital y referir solo si el resultado sale alterado."
+  },
+  "out": {
+   "A": {
+    "v": "ok",
+    "tag": "Conducta recomendada",
+    "brief": "",
+    "story": "Nota: «Mama izquierda, radio de las 2, a 6 cm del pezón, nódulo de 2 cm, duro, irregular, fijo; retracción leve de piel; axila izquierda con ganglio firme de 1 cm». Se refiere con prioridad urgente sin esperar estudios: la clínica es sospechosa y la imagen previa, de tamizaje en mama densa, no evaluó el nódulo. En el hospital, imagen diagnóstica: masa irregular de 2.1 cm.",
+    "lesson": [
+     "Clínica sospechosa más imagen benigna o previa es un triple test discordante: manda la clínica.",
+     "La mamografía de tamizaje no evalúa un síntoma, y en mama densa puede no ver el tumor."
+    ]
+   },
+   "B": {
+    "v": "warn",
+    "tag": "Espera innecesaria",
+    "brief": "Con clínica sospechosa y ganglio, la urgencia no depende del resultado de un ultrasonido de la red.",
+    "story": "El ultrasonido sale «sin hallazgos concluyentes» y la tranquilizan. Pasan 8 semanas antes de que alguien la refiera.",
+    "lesson": [
+     "Una imagen negativa o dudosa no cancela una clínica sospechosa."
+    ]
+   },
+   "C": {
+    "v": "bad",
+    "tag": "Falsa seguridad",
+    "brief": "Usar un tamizaje previo para descartar un nódulo palpable nuevo es el error clásico.",
+    "story": "Al año el nódulo mide 4 cm y hay dos ganglios; el diagnóstico llega en estadio III.",
+    "lesson": [
+     "Un síntoma nuevo se estudia aunque el tamizaje reciente haya sido normal."
+    ]
+   },
+   "D": {
+    "v": "warn",
+    "tag": "Retraso por esperar la imagen",
+    "brief": "Con banderas rojas (retracción y ganglio) se refiere sin esperar la imagen.",
+    "story": "La jornada es en 5 semanas; la paciente llega a la referencia con el cuadro más avanzado.",
+    "lesson": [
+     "Si hay bandera roja, la referencia no depende de que la imagen esté lista."
+    ]
+   }
+  },
+  "notes": [
+   "¿Cuál de los datos del examen es una bandera roja?",
+   "¿Por qué la mamografía previa no sirve para este nódulo?"
+  ],
+  "steps": [
+   {
+    "bridge": "En el hospital le hacen imagen diagnóstica: masa espiculada, BI-RADS 5. La biopsia con aguja gruesa informa «tejido fibroadiposo sin alteraciones». Trae el resultado a su UCSF y dice: «salió limpio, no tengo nada».",
+    "data": [
+     [
+      "Imagen",
+      "Masa espiculada de 2.1 cm, BI-RADS 5"
+     ],
+     [
+      "Biopsia con aguja gruesa",
+      "Tejido fibroadiposo sin alteraciones",
+      true
+     ],
+     [
+      "Examen",
+      "El nódulo duro y el ganglio siguen igual"
+     ]
+    ],
+    "q": "¿Qué hace ahora?",
+    "best": "B",
+    "options": {
+     "A": "Darla de alta con la biopsia benigna y citarla a la mamografía de tamizaje habitual del próximo año.",
+     "B": "Referencia urgente para repetir la biopsia o extirpar la lesión, explicándole que el resultado no explica lo que se ve.",
+     "C": "Control en 6 meses con ultrasonido: si la lesión no cambia de tamaño, se acepta la biopsia como benigna.",
+     "D": "Pedir una segunda lectura del informe en patología y esperar ese resultado antes de volver a referirla."
+    },
+    "out": {
+     "A": {
+      "v": "bad",
+      "tag": "Alta con lesión sin explicar",
+      "brief": "Una biopsia benigna en una lesión BI-RADS 5 no es diagnóstica.",
+      "story": "A los 8 meses el nódulo mide 4 cm. La nueva biopsia informa carcinoma ductal invasor.",
+      "lesson": [
+       "Biopsia benigna en lesión de alta sospecha: no se da de alta."
+      ]
+     },
+     "B": {
+      "v": "ok",
+      "tag": "Conducta recomendada",
+      "brief": "",
+      "story": "Se refiere de nuevo, urgente, con la nota: «BI-RADS 5 y clínica sospechosa; biopsia con tejido normal, discordante; solicito repetir la biopsia o escisión». A la paciente: «El resultado no explica lo que vemos y palpamos; por eso necesitamos otra muestra». Anota la gestión y confirma que asistió.",
+      "lesson": [
+       "Imagen y clínica sospechosas más histología benigna: discordancia; se repite la biopsia o se extirpa.",
+       "A la paciente se le explica por qué un resultado «limpio» no cierra el caso."
+      ]
+     },
+     "C": {
+      "v": "bad",
+      "tag": "Vigilancia donde no aplica",
+      "brief": "El control a 6 meses es para BI-RADS 3 concordante, no para BI-RADS 5 con biopsia que no explica la lesión.",
+      "story": "Un semestre perdido en una lesión de alta sospecha.",
+      "lesson": [
+       "El control a 6 meses es para lesiones probablemente benignas, no para BI-RADS 4-5."
+      ]
+     },
+     "D": {
+      "v": "warn",
+      "tag": "Retraso sin criterio",
+      "brief": "Una segunda lectura puede pedirse a la par, pero no retrasa la repetición de la biopsia.",
+      "story": "La segunda lectura confirma tejido normal tres semanas después; el diagnóstico se atrasa un mes.",
+      "lesson": [
+       "La discordancia se resuelve con otra muestra o con cirugía, no con esperar."
+      ]
+     }
+    },
+    "notes": [
+     "¿Qué le dice a la paciente para que no abandone la referencia?"
+    ]
+   }
+  ]
+ },
+ {
+  "min": 6,
+  "title": "El reporte que dice BI-RADS 0",
+  "vignette": "Mujer de 52 años, asintomática. Trae el reporte de su mamografía de una jornada de tamizaje y dice contenta: «salió cero, o sea que no tengo nada».",
+  "data": [
+   [
+    "Reporte",
+    "Asimetría focal en el cuadrante superoexterno derecho"
+   ],
+   [
+    "Categoría",
+    "BI-RADS 0: se recomienda evaluación adicional",
+    true
+   ],
+   [
+    "Examen clínico",
+    "Sin masa, piel y pezón normales, axilas negativas"
+   ],
+   [
+    "Antecedentes",
+    "Sin cáncer en la familia"
+   ]
+  ],
+  "q": "¿Qué hace hoy?",
+  "best": "C",
+  "options": {
+   "A": "Tranquilizarla: con examen normal, el BI-RADS 0 de tamizaje casi siempre resulta benigno.",
+   "B": "Repetir la mamografía de tamizaje en 6 meses para ver si la asimetría persiste.",
+   "C": "Explicarle que el estudio está incompleto y gestionar mamografía diagnóstica con ultrasonido.",
+   "D": "Referencia urgente a oncología: una asimetría nueva en mujer de 52 años es sospecha de cáncer."
+  },
+  "out": {
+   "A": {
+    "v": "bad",
+    "tag": "Paciente perdida",
+    "brief": "La mayoría de los BI-RADS 0 resultan benignos, pero solo se sabe completando el estudio.",
+    "story": "La paciente no vuelve. Dos años después consulta por una masa palpable en el mismo cuadrante.",
+    "lesson": [
+     "El BI-RADS 0 es la categoría donde más pacientes se pierden."
+    ]
+   },
+   "B": {
+    "v": "warn",
+    "tag": "Acción de otra categoría",
+    "brief": "El control a 6 meses es para BI-RADS 3; el 0 primero se completa.",
+    "story": "A los 6 meses la mamografía muestra la asimetría convertida en masa. Se perdió medio año.",
+    "lesson": [
+     "Primero se completa la categoría; después se decide la acción."
+    ]
+   },
+   "C": {
+    "v": "ok",
+    "tag": "Conducta recomendada",
+    "brief": "",
+    "story": "BI-RADS 0 no es «cero hallazgos»: es un estudio incompleto que necesita proyecciones adicionales y ultrasonido. Se le explica en palabras simples y se gestiona la cita; se anota la fecha en el expediente para verificar que la cumpla.",
+    "lesson": [
+     "BI-RADS 0: completar el estudio; nunca comunicarlo como normal.",
+     "El examen normal no cambia nada: la lesión puede no ser palpable."
+    ]
+   },
+   "D": {
+    "v": "warn",
+    "tag": "Urgencia sin dato",
+    "brief": "Una asimetría con estudio incompleto se completa antes de hablar de cáncer.",
+    "story": "Oncología la devuelve para completar el estudio; la paciente pasa semanas convencida de tener cáncer.",
+    "lesson": [
+     "La prioridad se justifica con el hallazgo; BI-RADS 0 no es sospecha confirmada."
+    ]
+   }
+  },
+  "notes": [
+   "¿En qué categoría BI-RADS se pierden más pacientes y por qué?"
+  ],
+  "steps": [
+   {
+    "q": "¿Qué hace ahora?",
+    "best": "C",
+    "options": {
+     "A": "Esperar a palparla: una lesión que no se palpa puede vigilarse con mamografía en 6 meses.",
+     "B": "Referir para escisión quirúrgica directa: con 4C es preferible quitarla sin biopsia previa.",
+     "C": "Referencia urgente para biopsia guiada por imagen, con el reporte y las imágenes.",
+     "D": "Pedir marcadores tumorales CA 15-3 y CEA para decidir la prioridad de la referencia."
+    },
+    "out": {
+     "A": {
+      "v": "bad",
+      "tag": "Retraso",
+      "brief": "Las lesiones no palpables son justamente las que el tamizaje encuentra a tiempo.",
+      "story": "A los 6 meses la masa mide 2 cm y hay un ganglio axilar.",
+      "lesson": [
+       "Esperar a palpar una lesión es esperar a que crezca."
+      ]
+     },
+     "B": {
+      "v": "warn",
+      "tag": "Orden invertido",
+      "brief": "La biopsia percutánea va primero: confirma el diagnóstico y permite planear una sola cirugía.",
+      "story": "Escisión sin diagnóstico previo: margen comprometido y segunda cirugía.",
+      "lesson": [
+       "Diagnóstico percutáneo primero; la cirugía se planea con la histología."
+      ]
+     },
+     "C": {
+      "v": "ok",
+      "tag": "Conducta recomendada",
+      "brief": "",
+      "story": "BI-RADS 4C (riesgo de malignidad 50-95 %): biopsia con aguja gruesa guiada por ultrasonido. Carcinoma ductal invasor de 1.2 cm, detectado antes de ser palpable. La referencia lleva el reporte completo, las imágenes y la pregunta: «solicito biopsia guiada por imagen».",
+      "lesson": [
+       "BI-RADS 4-5: referencia urgente para biopsia; que no se palpe no cambia la prioridad.",
+       "El tamizaje solo salva vidas si el BI-RADS 0 se completa y el 4 se biopsia."
+      ]
+     },
+     "D": {
+      "v": "bad",
+      "tag": "Prueba inútil",
+      "brief": "Los marcadores tumorales no diagnostican ni descartan cáncer de mama.",
+      "story": "CA 15-3 y CEA normales: se interpreta como tranquilizador y se retrasa la referencia.",
+      "lesson": [
+       "Los marcadores no sirven para diagnosticar; no se piden en el primer nivel."
+      ]
+     }
+    },
+    "data": [
+     [
+      "Mamografía diagnóstica y ultrasonido",
+      "Masa irregular espiculada de 1.2 cm"
+     ],
+     [
+      "Categoría",
+      "BI-RADS 4C: se recomienda biopsia",
+      true
+     ],
+     [
+      "Examen",
+      "Sigue sin masa palpable"
+     ]
+    ],
+    "bridge": "La evaluación adicional encuentra una masa de 1.2 cm, irregular, de márgenes espiculados, no palpable.",
+    "notes": []
+   }
+  ]
+ },
+ {
+  "min": 6,
+  "title": "Nódulo en el embarazo",
+  "vignette": "Mujer de 31 años, segundo embarazo, 22 semanas. Desde hace un mes tiene un nódulo en la mama derecha que no duele. En otra consulta le dijeron que «son cambios del embarazo, lo vemos después del parto».",
+  "data": [
+   [
+    "Mama derecha",
+    "Radio de las 11, a 4 cm del pezón: nódulo de 2 cm"
+   ],
+   [
+    "Características",
+    "Firme, bordes poco definidos, poco móvil",
+    true
+   ],
+   [
+    "Axilas",
+    "Negativas"
+   ],
+   [
+    "Embarazo",
+    "Normoevolutivo"
+   ]
+  ],
+  "q": "¿Qué hace hoy?",
+  "best": "C",
+  "options": {
+   "A": "Esperar al puerperio: en el embarazo la mama cambia y la imagen da muchos falsos positivos.",
+   "B": "Mamografía bilateral como primer estudio: es más sensible que el ultrasonido a cualquier edad.",
+   "C": "Ultrasonido de mama ahora: un nódulo que persiste 2 semanas en el embarazo se estudia igual.",
+   "D": "Referencia a perinatología: el control del nódulo lo decide el obstetra después del parto."
+  },
+  "out": {
+   "A": {
+    "v": "bad",
+    "tag": "Retraso diagnóstico",
+    "brief": "Esperar al puerperio es el error que más retrasa el cáncer asociado al embarazo.",
+    "story": "A las 6 semanas posparto el nódulo mide 4 cm y hay ganglios axilares.",
+    "lesson": [
+     "El embarazo no protege del cáncer ni justifica esperar."
+    ]
+   },
+   "B": {
+    "v": "warn",
+    "tag": "Estudio de segunda línea",
+    "brief": "En el embarazo el primer estudio es el ultrasonido; la mamografía se agrega si es sospechoso.",
+    "story": "La mamografía en mama gestante densa informa BI-RADS 0 y hay que pedir ultrasonido igual.",
+    "lesson": [
+     "La mamografía no está prohibida en el embarazo, pero no es el primer estudio."
+    ]
+   },
+   "C": {
+    "v": "ok",
+    "tag": "Conducta recomendada",
+    "brief": "",
+    "story": "Nódulo firme, de bordes poco definidos, que persiste un mes: necesita imagen ya. En el embarazo el primer estudio es el ultrasonido; si es sospechoso, se puede agregar mamografía con protección abdominal (dosis fetal despreciable). Atribuir el nódulo al embarazo es la razón principal del diagnóstico tardío.",
+    "lesson": [
+     "Embarazo y lactancia: ultrasonido primero (ACR 2022).",
+     "Un nódulo que persiste 2 semanas no se atribuye al embarazo sin estudiarlo."
+    ]
+   },
+   "D": {
+    "v": "warn",
+    "tag": "Responsable equivocado",
+    "brief": "El nódulo lo estudia quien lo encuentra; el control prenatal no lo resuelve.",
+    "story": "Perinatología la cita en 4 semanas y la regresa para estudio de mama.",
+    "lesson": [
+     "Cada referencia sin estudio previo agrega semanas."
+    ]
+   }
+  },
+  "notes": [
+   "¿Por qué el cáncer asociado al embarazo se diagnostica más tarde?"
+  ],
+  "steps": [
+   {
+    "q": "¿Qué hace ahora?",
+    "best": "B",
+    "options": {
+     "A": "Esperar a la semana 37 para hacer la biopsia, para no arriesgar al feto con el procedimiento.",
+     "B": "Referencia urgente para biopsia con aguja gruesa, segura en el embarazo; sin interrumpirlo.",
+     "C": "Referir para interrupción del embarazo, para poder dar el tratamiento completo cuanto antes.",
+     "D": "Repetir el ultrasonido en 4 semanas: el embarazo puede producir imágenes sólidas transitorias."
+    },
+    "out": {
+     "A": {
+      "v": "bad",
+      "tag": "Retraso diagnóstico",
+      "brief": "La biopsia no daña al feto; esperar 15 semanas sí empeora el pronóstico.",
+      "story": "Al término la masa mide 5 cm con ganglios: estadio más avanzado.",
+      "lesson": [
+       "Cada mes de retraso en el cáncer asociado al embarazo cuenta."
+      ]
+     },
+     "B": {
+      "v": "ok",
+      "tag": "Conducta recomendada",
+      "brief": "",
+      "story": "La biopsia con aguja gruesa es segura en el embarazo (avisar al patólogo). Informa carcinoma ductal invasor. Interrumpir el embarazo no mejora el pronóstico: se puede operar en cualquier trimestre y dar quimioterapia desde el segundo. A la paciente: «Hay que estudiar el nódulo ya; su embarazo puede continuar».",
+      "lesson": [
+       "BI-RADS 4-5 en el embarazo: biopsia urgente, igual que fuera del embarazo.",
+       "El tratamiento lo coordinan oncología y perinatología; la interrupción no es la regla."
+      ]
+     },
+     "C": {
+      "v": "bad",
+      "tag": "Sin diagnóstico ni beneficio",
+      "brief": "No hay diagnóstico y la interrupción no mejora la supervivencia.",
+      "story": "La paciente vive la propuesta como una pérdida innecesaria y abandona el seguimiento.",
+      "lesson": [
+       "La decisión sobre el embarazo no corresponde al primer nivel y menos sin histología."
+      ]
+     },
+     "D": {
+      "v": "warn",
+      "tag": "Vigilancia que no aplica",
+      "brief": "Una masa sólida irregular BI-RADS 4C se biopsia; no se vigila.",
+      "story": "A las 4 semanas creció; se pierde un mes.",
+      "lesson": [
+       "El embarazo no cambia el significado de BI-RADS 4C."
+      ]
+     }
+    },
+    "data": [
+     [
+      "Ultrasonido",
+      "Masa sólida irregular de 2.1 cm, márgenes no circunscritos"
+     ],
+     [
+      "Categoría",
+      "BI-RADS 4C",
+      true
+     ],
+     [
+      "Axila",
+      "Sin ganglios sospechosos"
+     ]
+    ],
+    "bridge": "El ultrasonido informa una masa sólida irregular. La paciente, asustada, pregunta si va a tener que interrumpir el embarazo.",
+    "notes": []
+   }
+  ]
+ },
+ {
+  "min": 6,
+  "title": "Dolor antes de la regla",
+  "vignette": "Mujer de 36 años. Desde hace 6 meses le duelen ambas mamas los 7 a 10 días antes de la menstruación. Pide una mamografía «para descartar cáncer», porque una tía tuvo cáncer de mama a los 65 años.",
+  "data": [
+   [
+    "Dolor",
+    "Bilateral, difuso, cíclico, premenstrual",
+    true
+   ],
+   [
+    "Examen",
+    "Nodularidad difusa y simétrica, sin nódulo dominante"
+   ],
+   [
+    "Pezón y piel",
+    "Sin secreción ni cambios"
+   ],
+   [
+    "Antecedente",
+    "Tía paterna con cáncer de mama a los 65"
+   ]
+  ],
+  "q": "¿Qué hace hoy?",
+  "best": "B",
+  "options": {
+   "A": "Mamografía bilateral: a los 36 años y con antecedente familiar está indicada para tranquilizarla.",
+   "B": "Explicar que el dolor cíclico difuso no indica cáncer; sostén, AINE tópico y sin imagen.",
+   "C": "Ultrasonido bilateral de mama: es el estudio de su edad y descarta una lesión en la nodularidad.",
+   "D": "Tamoxifeno 10 mg por 3 meses: reduce la mastalgia cíclica y además baja el riesgo por la tía."
+  },
+  "out": {
+   "A": {
+    "v": "warn",
+    "tag": "Estudio sin indicación",
+    "brief": "A los 36 años, riesgo promedio y examen normal: la mamografía no aporta y la densidad la hace poco útil.",
+    "story": "Mamografía: mamas densas, BI-RADS 1. La paciente sigue con dolor y ahora pide ultrasonido.",
+    "lesson": [
+     "Un estudio para tranquilizar sin indicación suele generar más estudios."
+    ]
+   },
+   "B": {
+    "v": "ok",
+    "tag": "Conducta recomendada",
+    "brief": "",
+    "story": "Dolor bilateral, difuso y cíclico con examen normal: mastalgia clínicamente no significativa (riesgo de cáncer 0-3 % en dolor sin otro hallazgo; ACR 2018). A los 36 años y con riesgo promedio no le corresponde mamografía de tamizaje: una tía de segundo grado con cáncer a los 65 no cumple criterios de riesgo hereditario. Explicación, sostén adecuado, diclofenaco tópico y criterios para volver.",
+    "lesson": [
+     "La explicación es parte del tratamiento de la mastalgia.",
+     "Volver antes si: dolor focal persistente, nódulo, secreción espontánea o cambios en la piel."
+    ]
+   },
+   "C": {
+    "v": "warn",
+    "tag": "Estudio sin indicación",
+    "brief": "El dolor cíclico difuso con examen normal no requiere imagen a ninguna edad.",
+    "story": "Ultrasonido: quistes milimétricos bilaterales. La paciente se angustia por «los quistes» y pide controles.",
+    "lesson": [
+     "Hallazgos incidentales sin significado aumentan la ansiedad que motivó la consulta."
+    ]
+   },
+   "D": {
+    "v": "bad",
+    "tag": "Tratamiento desproporcionado",
+    "brief": "El tamoxifeno es eficaz pero con efectos adversos; solo especialista en dolor grave refractario.",
+    "story": "Bochornos y alteración menstrual; la paciente lo abandona al mes.",
+    "lesson": [
+     "Escalera: explicación, sostén, AINE tópico; lo hormonal, solo especialista."
+    ]
+   }
+  },
+  "notes": [
+   "¿La tía cambia el riesgo de esta paciente?"
+  ],
+  "steps": [
+   {
+    "q": "¿Qué hace ahora?",
+    "best": "D",
+    "options": {
+     "A": "Repetir la explicación: es la misma mastalgia, que cambió de patrón por el estrés.",
+     "B": "Mamografía de tamizaje bilateral: el dolor focal se estudia igual que el tamizaje de rutina.",
+     "C": "Onagra y vitamina E por 3 meses antes de cualquier estudio, por ser dolor sin nódulo.",
+     "D": "Ultrasonido dirigido al punto doloroso: el dolor focal y persistente sí necesita imagen."
+    },
+    "out": {
+     "A": {
+      "v": "bad",
+      "tag": "Anclaje",
+      "brief": "Un cambio de patrón del dolor obliga a reevaluar, no a repetir la explicación anterior.",
+      "story": "Dos meses después el dolor sigue y la paciente consulta en otro lugar.",
+      "lesson": [
+       "Cuando el síntoma cambia, la conducta se reevalúa."
+      ]
+     },
+     "B": {
+      "v": "warn",
+      "tag": "Estudio equivocado",
+      "brief": "El dolor focal se estudia con imagen dirigida, y a los 36 años es ultrasonido.",
+      "story": "Mamografía de tamizaje: mamas densas, sin hallazgos. El punto doloroso no se evaluó.",
+      "lesson": [
+       "Imagen diagnóstica dirigida al síntoma, no tamizaje."
+      ]
+     },
+     "C": {
+      "v": "bad",
+      "tag": "Sin beneficio",
+      "brief": "Onagra y vitamina E no superan al placebo, y el dolor focal persistente necesita imagen antes.",
+      "story": "Tres meses de suplementos sin cambio y sin estudio.",
+      "lesson": [
+       "Onagra y vitamina E: sin beneficio frente a placebo (certeza baja)."
+      ]
+     },
+     "D": {
+      "v": "ok",
+      "tag": "Conducta recomendada",
+      "brief": "",
+      "story": "El dolor cambió de patrón: focal, persistente y no cíclico. A los 36 años corresponde ultrasonido dirigido (ACR 2018). Resultado: sin lesión, BI-RADS 1. Se revisa de nuevo la pared torácica y se cita a control. Si el dolor persiste con imagen normal, se maneja como mastalgia no cíclica.",
+      "lesson": [
+       "Dolor focal persistente: imagen dirigida según edad (menor de 30 y 30-39 ultrasonido; 40 o más mamografía más ultrasonido).",
+       "Descartar causas extramamarias: costocondritis, dolor radicular, herpes zóster."
+      ]
+     }
+    },
+    "data": [
+     [
+      "Dolor",
+      "Focal, persistente, no cíclico",
+      true
+     ],
+     [
+      "Examen",
+      "Dolor a la presión en el radio de las 2, sin nódulo palpable"
+     ],
+     [
+      "Pared torácica",
+      "Sin dolor en las articulaciones costocondrales"
+     ]
+    ],
+    "bridge": "Cuatro meses después el dolor cíclico mejoró. Ahora tiene un dolor fijo en un punto de la mama izquierda desde hace 6 semanas, que no cambia con el ciclo.",
+    "notes": []
+   }
+  ]
+ },
+ {
+  "min": 6,
+  "title": "Sangre por el pezón",
+  "vignette": "Mujer de 46 años. Desde hace un mes le sale sangre por el pezón izquierdo sin apretarlo; le mancha el sostén. Su mamografía de tamizaje de hace 8 meses fue BI-RADS 1.",
+  "data": [
+   [
+    "Secreción",
+    "Espontánea, sanguinolenta, unilateral",
+    true
+   ],
+   [
+    "Expresión",
+    "Una gota sanguinolenta por un solo orificio al presionar el radio de las 3, periareolar"
+   ],
+   [
+    "Palpación",
+    "Sin masa"
+   ],
+   [
+    "Mama contralateral",
+    "Normal"
+   ]
+  ],
+  "q": "¿Qué hace hoy?",
+  "best": "D",
+  "options": {
+   "A": "Citología de la secreción en la UCSF y decidir la referencia según el resultado.",
+   "B": "La mamografía de hace 8 meses fue normal: tranquilizar y repetirla en el tamizaje anual.",
+   "C": "Prolactina y TSH, y revisar fármacos: la secreción por el pezón suele ser de origen hormonal.",
+   "D": "Mamografía diagnóstica y ultrasonido retroareolar, con referencia urgente a mastología."
+  },
+  "out": {
+   "A": {
+    "v": "warn",
+    "tag": "Prueba que no decide",
+    "brief": "La citología de la secreción tiene baja sensibilidad; un negativo no permite tranquilizar.",
+    "story": "Citología: «negativa para malignidad». La paciente cree que está sana y no va a la referencia.",
+    "lesson": [
+     "ACR 2022: la citología de la secreción no está indicada."
+    ]
+   },
+   "B": {
+    "v": "bad",
+    "tag": "Estudio que no aplica",
+    "brief": "Una mamografía de tamizaje anterior al síntoma no evalúa una secreción patológica nueva.",
+    "story": "Ocho meses después la secreción continúa y aparece una masa retroareolar.",
+    "lesson": [
+     "Tamizaje y estudio diagnóstico son cosas distintas: el síntoma nuevo pide estudio diagnóstico."
+    ]
+   },
+   "C": {
+    "v": "warn",
+    "tag": "Eje equivocado",
+    "brief": "Prolactina y TSH son para galactorrea bilateral lechosa, no para sangre por un orificio.",
+    "story": "Prolactina y TSH normales. Se pierden 3 semanas sin estudiar la mama.",
+    "lesson": [
+     "Galactorrea (bilateral, lechosa, multiorificial) es endocrina; la telorragia uniorificial es de la mama."
+    ]
+   },
+   "D": {
+    "v": "ok",
+    "tag": "Conducta recomendada",
+    "brief": "",
+    "story": "Espontánea, unilateral, uniorificial y sanguinolenta: secreción patológica. La mamografía de tamizaje previa no evaluó este síntoma. Se refiere urgente (telorragia espontánea en la tabla de la carta) con los datos completos y la pregunta concreta. La causa más frecuente es el papiloma intraductal; el carcinoma es una minoría, mayor con sangre y edad avanzada.",
+    "lesson": [
+     "Secreción patológica: imagen diagnóstica según edad y referencia; no se espera al tamizaje.",
+     "La citología de la secreción no se recomienda: un resultado negativo no cambia la conducta."
+    ]
+   }
+  },
+  "notes": [
+   "¿Qué rasgos separan la secreción patológica de la fisiológica?"
+  ],
+  "steps": [
+   {
+    "q": "¿Qué hace ahora?",
+    "best": "A",
+    "options": {
+     "A": "Referir de nuevo a mastología pidiendo RM o galactografía: la secreción patológica persiste.",
+     "B": "Alta con control anual: con mamografía y ultrasonido normales el riesgo de cáncer es muy bajo.",
+     "C": "Antibiótico por 10 días: la secreción persistente con imagen normal suele ser ectasia infectada.",
+     "D": "Repetir en la UCSF una citología cada mes hasta que salga positiva y entonces referir."
+    },
+    "out": {
+     "A": {
+      "v": "ok",
+      "tag": "Conducta recomendada",
+      "brief": "",
+      "story": "Con mamografía y ultrasonido negativos, una secreción patológica que persiste necesita el siguiente estudio: RM (o galactografía donde no hay RM). La RM muestra un realce lineal retroareolar de 8 mm; la biopsia informa papiloma intraductal. La referencia dice qué se hizo, qué persiste y qué se pide.",
+      "lesson": [
+       "Secreción patológica con mamografía y ultrasonido negativos: RM o galactografía (ACR 2022).",
+       "Una referencia «para valoración» se pierde; una pregunta concreta se responde."
+      ]
+     },
+     "B": {
+      "v": "warn",
+      "tag": "Cierre prematuro",
+      "brief": "El riesgo es bajo con imagen negativa, pero la secreción patológica que persiste aún no está explicada.",
+      "story": "Al año la secreción continúa y la paciente consulta en otro lugar con una lesión ya palpable.",
+      "lesson": [
+       "Estudios negativos bajan el riesgo; no explican el síntoma."
+      ]
+     },
+     "C": {
+      "v": "bad",
+      "tag": "Sin fundamento",
+      "brief": "No hay signos de infección; el antibiótico no trata una secreción sanguinolenta uniorificial.",
+      "story": "Diez días de antibiótico sin cambio en la secreción.",
+      "lesson": [
+       "La ectasia ductal da secreción multiorificial y espesa, no sangre por un orificio."
+      ]
+     },
+     "D": {
+      "v": "bad",
+      "tag": "Prueba repetida",
+      "brief": "Repetir una prueba de baja sensibilidad no aumenta su valor y retrasa el estudio que falta.",
+      "story": "Tres citologías negativas en tres meses; ningún paso hacia el diagnóstico.",
+      "lesson": [
+       "Si una prueba no cambia la conducta, repetirla tampoco."
+      ]
+     }
+    },
+    "data": [
+     [
+      "Mamografía diagnóstica",
+      "BI-RADS 1"
+     ],
+     [
+      "Ultrasonido retroareolar",
+      "Sin lesión intraductal visible"
+     ],
+     [
+      "Secreción",
+      "Persiste, sanguinolenta, uniorificial",
+      true
+     ]
+    ],
+    "bridge": "En el hospital le hicieron mamografía diagnóstica y ultrasonido: ambos sin hallazgos. Le dijeron que regresara a su UCSF. La secreción sanguinolenta continúa igual.",
+    "notes": []
+   }
+  ]
+ },
+ {
+  "min": 6,
+  "title": "Fiebre en la lactancia",
+  "vignette": "Mujer de 26 años, 2 semanas posparto, lactancia materna exclusiva. Desde ayer tiene dolor en la mama izquierda, fiebre y malestar general. La suegra le aconsejó dejar de dar pecho de ese lado.",
+  "data": [
+   [
+    "Temperatura",
+    "38.6 °C"
+   ],
+   [
+    "Mama izquierda",
+    "Eritema y dolor en el cuadrante superoexterno, de 6 cm",
+    true
+   ],
+   [
+    "Palpación",
+    "Zona indurada, sin fluctuación"
+   ],
+   [
+    "Pezón",
+    "Grieta pequeña; el agarre es superficial"
+   ],
+   [
+    "Recién nacido",
+    "Activo, buena ganancia de peso"
+   ]
+  ],
+  "q": "¿Qué indica hoy?",
+  "best": "D",
+  "options": {
+   "A": "Suspender el pecho de ese lado y extraer con bomba hasta que ceda la fiebre, más antibiótico oral.",
+   "B": "Referir hoy al hospital para ultrasonido y antibiótico intravenoso: la fiebre en el puerperio obliga a ingreso.",
+   "C": "Masaje profundo y vaciado completo cada 2 horas con compresas calientes; antibiótico si sigue a las 72 h.",
+   "D": "Dicloxacilina o cefalexina, ibuprofeno, frío local, corregir el agarre y seguir amamantando a demanda."
+  },
+  "out": {
+   "A": {
+    "v": "warn",
+    "tag": "Congestión",
+    "brief": "Suspender la lactancia aumenta la congestión y el riesgo de absceso; la leche no daña al bebé.",
+    "story": "La mama se congestiona más; la madre siente que «se le secó» ese lado e introduce fórmula.",
+    "lesson": [
+     "Amamantar del lado afectado es seguro para el lactante y forma parte del tratamiento."
+    ]
+   },
+   "B": {
+    "v": "warn",
+    "tag": "Sobrerreferencia",
+    "brief": "Mastitis sin masa fluctuante ni sepsis: se trata en la UCSF con antibiótico oral.",
+    "story": "Pasa la noche en el hospital con su bebé; le indican lo mismo que podía recibir en la UCSF.",
+    "lesson": [
+     "Se refiere por masa fluctuante, falta de respuesta en 48-72 h, signos de sepsis o mastitis recurrente."
+    ]
+   },
+   "C": {
+    "v": "bad",
+    "tag": "Práctica abandonada",
+    "brief": "El masaje profundo y el vaciado excesivo dañan el tejido y mantienen la hiperlactancia (ABM 2022).",
+    "story": "Al tercer día el dolor es mayor y aparece una zona fluctuante.",
+    "lesson": [
+     "ABM 2022: frío, antiinflamatorio, amamantar a demanda sin vaciar de más; masaje solo suave, linfático.",
+     "Con fiebre y malestar, el antibiótico no se pospone."
+    ]
+   },
+   "D": {
+    "v": "ok",
+    "tag": "Conducta recomendada",
+    "brief": "",
+    "story": "Fiebre y malestar indican antibiótico desde el inicio: dicloxacilina o cefalexina por 10-14 días (clindamicina si es alérgica). Ibuprofeno y frío local; amamantar a demanda sin vaciar de más. Revisar el agarre, que explica la grieta. Le explica que puede seguir dando pecho de los dos lados y le pide volver en 48 h o antes si la fiebre no cede o palpa una bola blanda.",
+    "lesson": [
+     "La mastitis lactacional se trata en el primer nivel y sin suspender la lactancia.",
+     "Criterio de regreso explícito: fiebre que no cede en 48 h o masa fluctuante."
+    ]
+   }
+  },
+  "notes": [
+   "¿Qué le contesta a la suegra?",
+   "¿Qué antibiótico usa si es alérgica a la penicilina?"
+  ],
+  "steps": [
+   {
+    "bridge": "Vuelve a las 72 h. Tomó la dicloxacilina como se indicó y siguió amamantando. Persiste la fiebre.",
+    "data": [
+     [
+      "Temperatura",
+      "38.4 °C"
+     ],
+     [
+      "Mama izquierda",
+      "En el centro del eritema, zona fluctuante de 3 cm",
+      true
+     ],
+     [
+      "Estado general",
+      "Hidratada, sin taquicardia ni hipotensión"
+     ]
+    ],
+    "q": "¿Qué hace ahora?",
+    "best": "A",
+    "options": {
+     "A": "Referir el mismo día para ultrasonido y aspiración con aguja; que siga amamantando mientras tanto.",
+     "B": "Cambiar a clindamicina oral y control en 48 h: no responder sugiere un estafilococo resistente.",
+     "C": "Incisión y drenaje en la UCSF con anestesia local, y no amamantar de ese lado hasta que cierre la herida.",
+     "D": "Cabergolina para suprimir la leche y bajar la congestión, y mantener la dicloxacilina hasta completar."
+    },
+    "out": {
+     "A": {
+      "v": "ok",
+      "tag": "Conducta recomendada",
+      "brief": "",
+      "story": "El ultrasonido confirma un absceso de 3 cm. Se aspira con aguja guiada por ultrasonido, se envía cultivo y se ajusta el antibiótico. Se repite la aspiración a los 3 días; resuelve sin cicatriz. Siguió amamantando todo el tiempo.",
+      "lesson": [
+       "Absceso lactacional: aspiración guiada por ultrasonido como primera opción; incisión si es grande o multiloculado.",
+       "Si la masa persiste después de resolver la infección, o la paciente no lacta, hay que pensar en cáncer."
+      ]
+     },
+     "B": {
+      "v": "warn",
+      "tag": "Absceso sin drenar",
+      "brief": "Una colección no se cura con otro antibiótico: hay que confirmarla y drenarla.",
+      "story": "A las 48 h la colección mide 5 cm y la piel se adelgaza.",
+      "lesson": [
+       "Masa fluctuante o falta de respuesta en 48-72 h: ultrasonido."
+      ]
+     },
+     "C": {
+      "v": "bad",
+      "tag": "Procedimiento fuera de lugar",
+      "brief": "Sin ultrasonido no se sabe el tamaño ni los tabiques; la incisión deja cicatriz y fístula láctea.",
+      "story": "Drena poco porque la colección es multiloculada; aparece una fístula láctea que tarda semanas en cerrar.",
+      "lesson": [
+       "El drenaje del absceso mamario se hace con ultrasonido y en el nivel que lo tiene."
+      ]
+     },
+     "D": {
+      "v": "bad",
+      "tag": "Pierde la lactancia",
+      "brief": "Suprimir la leche no trata el absceso y quita la lactancia al bebé sin necesidad.",
+      "story": "La leche se suprime; el absceso sigue creciendo y al final hay que drenarlo igual.",
+      "lesson": [
+       "Ni la mastitis ni el absceso son indicación de suspender la lactancia."
+      ]
+     }
+    },
+    "notes": [
+     "¿Qué hallazgo le haría pensar en otro diagnóstico?"
+    ]
+   }
+  ]
+ },
+ {
+  "min": 6,
+  "title": "La mama roja que no cede",
+  "vignette": "Mujer de 52 años, no lacta desde hace 20 años. Hace 6 semanas nota la mama derecha roja y más grande. En otra consulta le dieron cefalexina 10 días, sin mejoría. No ha tenido fiebre.",
+  "data": [
+   [
+    "Mama derecha",
+    "Eritema y edema de la mitad inferior; más grande que la izquierda"
+   ],
+   [
+    "Piel",
+    "Piel de naranja",
+    true
+   ],
+   [
+    "Palpación",
+    "Mama aumentada de consistencia, sin masa definida ni fluctuación"
+   ],
+   [
+    "Axila derecha",
+    "Ganglio duro de 1.5 cm"
+   ],
+   [
+    "Temperatura",
+    "36.8 °C"
+   ]
+  ],
+  "q": "¿Qué hace hoy?",
+  "best": "A",
+  "options": {
+   "A": "Referencia urgente a mastología con los datos completos y sin otro antibiótico; explicarle por qué es urgente.",
+   "B": "Segundo ciclo de 10 días con clindamicina: la cefalexina no cubre los anaerobios de una mastitis no lactacional.",
+   "C": "Pedir ultrasonido ambulatorio desde la UCSF y decidir la referencia cuando llegue el resultado.",
+   "D": "Referencia preferente a dermatología: sin fiebre y sin masa orienta a dermatitis o linfedema."
+  },
+  "out": {
+   "A": {
+    "v": "ok",
+    "tag": "Conducta recomendada",
+    "brief": "",
+    "story": "Mujer que no lacta, eritema y edema de más de un tercio de la mama, piel de naranja, menos de 6 meses de evolución, ganglio duro y sin respuesta al antibiótico: carcinoma inflamatorio hasta demostrar lo contrario. Referencia: prioridad urgente, examen con los datos completos, antibiótico previo sin respuesta y pregunta concreta: imagen y biopsia de parénquima y piel. A la paciente: «Esto no se está portando como una infección; necesita estudios y una biopsia pronto».",
+    "lesson": [
+     "Mama roja en mujer que no lacta: no se da un segundo antibiótico sin imagen.",
+     "El carcinoma inflamatorio (T4d) progresa en semanas; cada ciclo de antibiótico es tiempo perdido."
+    ]
+   },
+   "B": {
+    "v": "bad",
+    "tag": "Retraso diagnóstico",
+    "brief": "Repetir antibiótico en una mujer que no lacta es el error clásico que retrasa el carcinoma inflamatorio.",
+    "story": "Diez días después el eritema ocupa toda la mama y hay un ganglio supraclavicular.",
+    "lesson": [
+     "Sesgo de anclaje: el primer diagnóstico (infección) se mantiene aunque los datos no cuadren."
+    ]
+   },
+   "C": {
+    "v": "warn",
+    "tag": "Referencia condicionada",
+    "brief": "La clínica ya basta para referir urgente; esperar el ultrasonido retrasa y un resultado inespecífico confunde.",
+    "story": "El ultrasonido tarda 3 semanas e informa «engrosamiento cutáneo, cambios inflamatorios». Se interpreta como mastitis y se pierde otro mes.",
+    "lesson": [
+     "Si la imagen se puede pedir sin retrasar la referencia, se pide; si la retrasa, se refiere primero."
+    ]
+   },
+   "D": {
+    "v": "bad",
+    "tag": "Destino equivocado",
+    "brief": "La piel de naranja con ganglio duro es infiltración linfática tumoral hasta demostrar lo contrario.",
+    "story": "Dermatología la ve 2 meses después y la refiere a mastología: se perdieron 8 semanas.",
+    "lesson": [
+     "Piel de naranja = edema por obstrucción linfática dérmica; en la mama, primero descartar cáncer."
+    ]
+   }
+  },
+  "notes": [
+   "¿Qué datos de la tabla 3.8 de la carta la ponen en prioridad urgente?",
+   "¿Qué error de razonamiento cometió la consulta anterior?"
+  ],
+  "steps": [
+   {
+    "bridge": "El hospital recibe la referencia y le da cita para dentro de 7 semanas. La paciente regresa a la UCSF con el papel de la cita.",
+    "data": [
+     [
+      "Cita",
+      "En 7 semanas"
+     ],
+     [
+      "Mama derecha",
+      "Eritema algo más extenso que hace una semana",
+      true
+     ],
+     [
+      "Paciente",
+      "Tiene teléfono; vive a 1 hora del hospital"
+     ]
+    ],
+    "q": "¿Qué hace ahora?",
+    "best": "D",
+    "options": {
+     "A": "Respetar la cita asignada y controlarla cada 2 semanas en la UCSF para vigilar si el eritema avanza.",
+     "B": "Enviarla a la emergencia del hospital para que la ingresen y le hagan los estudios más rápido.",
+     "C": "Iniciar tamoxifeno mientras espera la cita, para frenar la enfermedad hasta que la vea el especialista.",
+     "D": "Gestionar hoy con el enlace de la red que adelanten la cita, por sospecha de carcinoma inflamatorio."
+    },
+    "out": {
+     "A": {
+      "v": "bad",
+      "tag": "Referencia sin seguimiento",
+      "brief": "Siete semanas es demasiado para una enfermedad que progresa en semanas; vigilarla no cambia nada.",
+      "story": "Llega a la cita con enfermedad más extensa; el tratamiento empieza casi 3 meses después de la primera consulta.",
+      "lesson": [
+       "La referencia no termina al entregar la referencia: termina cuando la paciente es atendida."
+      ]
+     },
+     "B": {
+      "v": "warn",
+      "tag": "Ruta equivocada",
+      "brief": "Emergencias no estudia ni biopsia a una paciente estable; suele devolverla a su cita.",
+      "story": "Pasa 6 horas en emergencias; la evalúan, la encuentran estable y le dicen que espere su cita.",
+      "lesson": [
+       "La emergencia es para sepsis, sangrado o descompensación; la urgencia oncológica se gestiona por la red."
+      ]
+     },
+     "C": {
+      "v": "bad",
+      "tag": "Tratamiento sin diagnóstico",
+      "brief": "Sin biopsia no hay diagnóstico, receptores ni estadio; el tratamiento lo decide oncología.",
+      "story": "El tamoxifeno no frena la enfermedad; si el tumor no expresa receptores, solo suma efectos adversos.",
+      "lesson": [
+       "En el primer nivel no se inicia tratamiento oncológico sin diagnóstico histológico."
+      ]
+     },
+     "D": {
+      "v": "ok",
+      "tag": "Conducta recomendada",
+      "brief": "",
+      "story": "El interno llama al enlace de referencia, explica en una frase la sospecha («mama roja con piel de naranja y ganglio duro, sin respuesta a antibiótico, en mujer que no lacta») y consigue cita en 5 días. Anota en el expediente la gestión, a quién llamó y la nueva fecha, y llama a la paciente 1 semana después para confirmar que asistió. Biopsia: carcinoma ductal invasor con émbolos dérmicos, T4d.",
+      "lesson": [
+       "Una frase clínica clara consigue más que «urgente» escrito en mayúsculas.",
+       "Registrar la gestión y confirmar la asistencia es parte de la referencia."
+      ]
+     }
+    },
+    "notes": [
+     "¿Cómo diría en una frase la sospecha por teléfono?",
+     "Ajustar los nombres de la red RIIS de la zona."
+    ]
+   }
+  ]
+ }
+];
+const MESSAGES = [
+ "Documente con los 9 datos; menor de 30 años, ultrasonido primero; un BI-RADS 3 que crece se refiere para biopsia.",
+ "Una familia con criterios hereditarios se refiere completa a mastología u oncología, con el árbol familiar.",
+ "Clínica sospechosa más imagen benigna, o biopsia benigna en lesión BI-RADS 5: discordancia; manda la clínica.",
+ "BI-RADS 0 es un estudio incompleto: se completa, no se informa como normal.",
+ "Nódulo en el embarazo: ultrasonido primero; la biopsia con aguja gruesa es segura y no obliga a interrumpir.",
+ "Mastalgia cíclica, bilateral y difusa con examen normal: no requiere imagen más allá del tamizaje por edad.",
+ "Secreción espontánea, unilateral, uniorificial o sanguinolenta: imagen según edad y referencia.",
+ "La mastitis lactacional se trata en la UCSF sin suspender la lactancia; el absceso se confirma con ultrasonido y se aspira.",
+ "Mama roja en mujer que no lacta: no hay segundo antibiótico; referencia urgente y seguimiento hasta que la atiendan."
+];
+
+/* ---------- estado ---------- */
+const STORE = T.store;
+function blank(){
+  return {screen:"cover", node:0, step:0, phase:"caso", chosen:null, seen:{}, picks:{}, integ:{}, notes:false};
+}
+/* Un caso puede tener varias decisiones: la 0 es el propio caso; las siguientes están en C.steps. */
+function nSteps(n){ return 1 + ((CASES[n].steps||[]).length); }
+function dec(n,s){ const C = CASES[n]; return s ? C.steps[s-1] : C; }
+function dkey(n,s){ return s ? (n+1)+"-"+(s+1) : String(n+1); }
+function seenOf(n,s){ return S.seen[dkey(n,s)] || []; }
+let S = blank();
+try{ const raw = localStorage.getItem(STORE); if(raw){ const o = JSON.parse(raw); if(o && o.seen && !Array.isArray(o.seen)) S = Object.assign(blank(), o); } }catch(e){}
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(S)); }catch(e){} }
+
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = t => String(t).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function set(patch){ Object.assign(S, patch); save(); render(); }
+
+let timer = null, tLeft = 0, clockT = null, blockKey = null, blockStart = 0;
+function stopTimer(){ if(timer){ clearInterval(timer); timer=null; } }
+function blockOf(){ return S.screen==="node" ? "n"+S.node : S.screen; }
+function budgetOf(){ return S.screen==="node" ? CASES[S.node].min : S.screen==="debrief" ? T.closeMin : 0; }
+function tickClock(){
+  const el = $("#clock"); if(!el) return; const b = budgetOf();
+  if(!b){ el.hidden = true; return; }
+  const sec = Math.floor((Date.now()-blockStart)/1000), tot = b*60;
+  el.hidden = false;
+  el.textContent = Math.floor(sec/60) + ":" + String(sec%60).padStart(2,"0") + " / " + b + ":00";
+  const think = S.screen==="node" && S.step===0 && S.phase==="caso" && sec>=105; // aviso: dar clic en «15 s para pensar»
+  el.classList.toggle("over", think || sec >= tot-30);
+  el.classList.toggle("blink", sec >= tot-10);
+}
+
+function renderTrack(){
+  const stops = [["cover","Inicio"],...CASES.map((c,i)=>["n"+i,String(i+1)]),["debrief","Cierre"]];
+  const cur = blockOf(); const ci = stops.findIndex(s=>s[0]===cur);
+  $("#track").innerHTML = stops.map((s,i)=>{
+    const st = i<ci ? "done" : i===ci ? "now" : "";
+    const br = s[0].startsWith("n") ? '<div class="branches">'+Array.from({length:nSteps(+s[0].slice(1))},(_,j)=>seenOf(+s[0].slice(1),j)).flat().map(k=>`<i class="br k ${k}"></i>`).join("")+'</div>' : '<div class="branches"></div>';
+    const seg = i>0 ? `<div class="seg ${i<=ci?"done":""}"></div>` : "";
+    return seg + `<div class="stop ${st}">${br}<span class="dot"></span><small>${esc(s[1])}</small></div>`;
+  }).join("");
+}
+
+function caseTable(rows){
+  return `<div class="tablewrap"><table class="chart">${rows.map(r=>`<tr><td>${esc(r[0])}</td><td class="${r[2]?"hi":""}">${esc(r[1])}</td></tr>`).join("")}</table></div>`;
+}
+function head(n,q){ const C = CASES[n], m = nSteps(n); return `<div class="hl"><span class="eyebrow">Caso ${n+1} de ${CASES.length}${m>1?` · Decisión ${S.step+1} de ${m}`:""} · ${C.min} min</span><h2>${esc(C.title)}</h2>${q?`<span class="hq">${esc(q)}</span>`:""}</div>`; }
+function notesBox(n){
+  if(!S.notes) return "";
+  const D = dec(n,S.step);
+  return `<aside class="notes stack"><h3>Notas del ponente (no proyectar)</h3><ul class="tight">${(D.notes||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul><p style="font-size:.9em">Conducta recomendada: <b>${D.best}</b></p></aside>`;
+}
+function optList(n, pick){
+  const C = dec(n,S.step);
+  return `<div class="opts">${KEYS.map(k=>{
+    const tag = pick ? "button" : "div";
+    return `<${tag} class="opt ${pick?"pick":""}" ${pick?`data-choose="${k}"`:""}><span class="k ${k}">${k}</span><span>${esc(C.options[k])}</span></${tag}>`;
+  }).join("")}</div>`;
+}
+
+function sceneCover(){
+  const tot = AGENDA.reduce((s,a)=>s+a[1],0);
+  return `
+  <section class="cover2">
+    <div class="stack c2l">
+      <div class="stack" style="gap:6px"><span class="eyebrow">${esc(T.eyebrow)}</span>
+      <h1>${esc(T.h1)}</h1>
+      <p>${esc(T.intro)}</p></div>
+      <div class="agchips" title="${esc(T.timing||"")}">${AGENDA.map(a=>`<span class="ag">${esc(a[0])} <b>${a[1]}'</b></span>`).join("")}<span class="ag tot">Total <b>${tot} min</b></span></div>
+      <ol class="rules">
+        ${(T.rules||["Tarjeta arriba: todos a la vez, sin hablar.","Votan solo residentes. No se cuenta.","Discusión: R1 → R2/R3 → abierta.","El grupo elige; la pantalla muestra la consecuencia."]).map(r=>`<li>${esc(r)}</li>`).join("")}
+      </ol>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="cards" aria-label="Tarjetas de voto">${KEYS.map(k=>`<span class="k ${k}" style="background:var(--o${k})">${k}</span>`).join("")}</div>
+      <span class="muted" style="font-size:.75em;flex:1;min-width:12em">${esc(T.cardsNote||"4 tarjetas por residente, o dedos: 1 a 4.")}</span></div>
+    </div>
+    <div class="panel stack c2r">
+      <div id="liveCover"></div>
+      <button class="btn primary" data-node="0" style="font-size:1.1em;padding:.7em 1em">Comenzar: Caso 1</button>
+    </div>
+  </section>`;
+}
+
+function figHtml(C){
+  if(C.img) return `<figure class="fig"><img src="${C.img}" alt="${esc(C.alt||"Imagen ecográfica")}"><figcaption>${esc(C.figCap||"")}</figcaption></figure>`;
+  if(C.fig) return `<figure class="fig">${C.fig}<figcaption>${esc(C.figCap||"Esquema ilustrativo; no es una ecografía real.")}</figcaption></figure>`;
+  return "";
+}
+function integHtml(){
+  if(!T.integ) return "";
+  const I = T.integ, sh = S.integ||{};
+  const rows = I.rows.map((r,i)=>`<tr><td class="lab">${esc(r.c)}</td>${r.cells.map((c,j)=>sh[i+"-"+j]?`<td><span class="shown">${esc(c)}</span></td>`:`<td><button class="rev" data-rev="${i}-${j}" aria-label="Mostrar ${esc(I.cols[j])} del ${esc(r.c)}">Mostrar</button></td>`).join("")}</tr>`).join("");
+  return `<div class="panel stack"><h3>${esc(I.title)}</h3><p class="muted" style="font-size:.85em">${esc(I.hint)}</p><div class="tablewrap"><table class="sumtable integ"><tr><th></th>${I.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${rows}</table></div><div class="actions"><button class="btn" data-rev="all">Mostrar todo</button></div></div>`;
+}
+function sceneCaso(n){
+  const C = CASES[n], D = dec(n,S.step);
+  const intro = S.step ? `<span class="eyebrow">Evolución</span><p>${esc(D.bridge)}</p>` : `<p>${esc(C.vignette)}</p>`;
+  return `<section class="stack">${head(n)}
+    <div class="cols"><div class="stack">${intro}<h2 style="font-size:1.3em">${esc(D.q)}</h2>${S.step?"":figHtml(C)}</div><div class="panel">${caseTable(D.data)}</div></div>
+    ${optList(n,false)}${notesBox(n)}
+    <div class="actions"><button class="btn ghost" data-prev="1">Atrás</button><span class="sp"></span>
+      <span class="timer" id="timer" aria-live="polite"></span>
+      <button class="btn" id="bTimer">15 s para pensar</button>
+      <button class="btn primary" data-phase="voto">Votar ahora</button></div></section>`;
+}
+
+function sceneVoto(n){
+  const D = dec(n,S.step);
+  const cols = KEYS.map(k=>`<div class="vcol" data-k="${k}"><div class="vh"><button class="k ${k}" data-choose="${k}" title="Elegir esta conducta">${k}</button><span class="vp" id="vp-${k}"></span></div><div class="vn" id="vn-${k}"></div><div class="vb"><i id="vb-${k}"></i></div><p class="vt">${esc(D.options[k])}</p><div class="vchips" id="vc-${k}"></div></div>`).join("");
+  const tt = T.turns||[["1 · Un R1","Defiende su opción con un criterio concreto."],["2 · Un R2 o R3","Señala qué dato falta o está mal interpretado."],["3 · Abierta","Cualquier asistente puede intervenir."]];
+  return `<section class="stack">${head(n,D.q)}
+    <div class="vstrip" id="livePanel"><b>Tarjetas arriba</b><span class="muted">${esc(T.voteNote||"Todos levantan su tarjeta al mismo tiempo. Sin contar: basta ver si hay mayoría o el grupo está dividido.")}</span></div>
+    <div class="vcols">${cols}</div>
+    <div class="turns3">${tt.map((t,i)=>`<div class="turn" id="turn${i+1}"><b>${esc(t[0])}</b><span>${esc(t[1])}</span></div>`).join("")}</div>
+    ${notesBox(n)}
+    <div class="actions"><button class="btn ghost" data-phase="caso">Ver el caso</button><span class="sp"></span><button class="btn primary" data-cont="1">Continuar: ver la consecuencia</button></div></section>`;
+}
+
+function sceneOut(n){
+  const C = dec(n,S.step), k = S.chosen, O = C.out[k];
+  const cls = {ok:"v-ok",warn:"v-warn",bad:"v-bad"}[O.v];
+  const others = KEYS.filter(x=>x!==C.best);
+  const isBest = k===C.best, isLast = n===CASES.length-1, more = S.step < nSteps(n)-1;
+  return `<section class="stack">
+    <span class="eyebrow big">Caso ${n+1}${nSteps(n)>1?` · Decisión ${S.step+1}`:""} · Consecuencia de la opción ${k}</span>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="k ${k} mini" style="width:2em;height:2em;font-size:1em">${k}</span><h2 style="font-size:1.25em;flex:1;min-width:0">${esc(C.options[k])}</h2></div>
+    <span class="verdict ${cls}">${esc(O.tag)}</span>
+    <p class="story">${esc(O.story)}</p>
+    <div class="lesson stack"><h3>Lo que enseña</h3><ul class="tight">${O.lesson.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
+    ${isBest?`<div class="panel stack"><h3>Si el grupo hubiera elegido otra opción</h3><ul class="tight others">${others.map(x=>`<li><span class="k ${x} mini">${x}</span>${esc(C.out[x].brief)}</li>`).join("")}</ul></div>`:""}
+    ${notesBox(n)}
+    <div class="actions"><span class="sp"></span>
+      ${seenOf(n,S.step).includes(C.best) ? (more ? `<button class="btn primary" data-step="1">Siguiente decisión</button>` : `<button class="btn primary" data-next="1">${isLast?"Ir a: "+T.closeLabel:"Caso "+(n+2)}</button>`) : `<button class="btn primary" data-choose="${C.best}">Ver conducta recomendada</button>`}
+    </div></section>`;
+}
+
+function sceneDebrief(){
+  const headr = `<tr><th>Caso</th><th>El grupo eligió</th><th>Recomendada</th></tr>`;
+  const rows = CASES.map((C,i)=>Array.from({length:nSteps(i)},(_,j)=>{const D=dec(i,j), p=S.picks[dkey(i,j)]; const lab = nSteps(i)>1 ? `${i+1}.${j+1}` : `${i+1}`; return `<tr><td>${lab} · ${j?`<span class="muted">${esc(D.q)}</span>`:esc(C.title)}</td><td>${p?`<span class="k ${p} mini">${p}</span>`:"–"}</td><td><span class="k ${D.best} mini">${D.best}</span></td></tr>`;}).join("")).join("");
+  return `<section class="stack">
+    <span class="eyebrow">${esc(T.closeLabel)} · ${T.closeMin} min</span>
+    <h2>Qué decidimos y por qué</h2>
+    <div class="cols">
+      <div class="panel stack"><h3>Decisión del grupo en cada caso</h3><div class="tablewrap"><table class="sumtable">${headr}${rows}</table></div>
+        <p class="muted" style="font-size:.75em">Primera conducta que eligió el grupo después de la discusión.</p></div>
+      <div class="stack"><h3>Pregunta de cierre</h3><p>${esc(T.closeQ)}</p>
+        <p class="muted" style="font-size:.85em">${esc(T.closeAfter)}</p></div>
+    </div>
+    <div id="liveDebrief"></div>
+    ${integHtml()}
+    <div class="lesson stack"><h3>Mensajes para llevar</h3><ul class="tight">${MESSAGES.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
+    <p class="muted" style="font-size:.75em">${esc(T.base)}</p>
+    ${T.noNav?"":`<div class="actions"><button class="btn ghost" data-node="${CASES.length-1}">Volver al caso ${CASES.length}</button><span class="sp"></span><button class="btn" data-go="cover">Volver al inicio</button></div>`}
+  </section>`;
+}
+
+function render(){
+  stopTimer();
+  renderTrack();
+  if(blockOf()!==blockKey){ blockKey = blockOf(); blockStart = Date.now(); }
+  clearInterval(clockT); tickClock(); clockT = setInterval(tickClock, 1000);
+  $("#bNotes").setAttribute("aria-pressed", S.notes?"true":"false");
+  let h = "";
+  if(S.screen==="cover") h = sceneCover();
+  else if(S.screen==="debrief") h = sceneDebrief();
+  else { const n=S.node; h = S.phase==="caso" ? sceneCaso(n) : S.phase==="voto" ? sceneVoto(n) : sceneOut(n); }
+  $("#scene").innerHTML = h;
+  window.scrollTo({top:0});
+  if(window.LIVE) window.LIVE.mount(S);
+  fit();
+}
+/* ajusta el tamaño de letra para que la pantalla de caso quepa sin bajar */
+function fit(){
+  const r = document.documentElement; r.style.removeProperty("--s");
+  if(S.screen!=="node" && S.screen!=="cover") return;
+  const ok = z => { r.style.setProperty("--s", z+"px"); return document.documentElement.scrollHeight <= window.innerHeight+1; };
+  let lo = 10, hi = 36;                       // el mayor tamaño de letra que aún cabe sin bajar
+  if(ok(hi)) return;
+  while(hi-lo > 0.5){ const mid = (lo+hi)/2; if(ok(mid)) lo = mid; else hi = mid; }
+  ok(lo);
+}
+let fitT=[];
+function fitSoon(){ fitT.forEach(clearTimeout); fitT=[0,120,400,1000].map(d=>setTimeout(fit,d)); }
+window.addEventListener("resize", fitSoon);
+document.addEventListener("fullscreenchange", fitSoon);
+if(window.visualViewport) window.visualViewport.addEventListener("resize", fitSoon);
+
+document.addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.rev!==undefined){ const integ = Object.assign({}, S.integ||{}); if(b.dataset.rev==="all") T.integ.rows.forEach((r,i)=>r.cells.forEach((_,j)=>{integ[i+"-"+j]=1;})); else integ[b.dataset.rev]=1; const y = window.scrollY; set({integ}); window.scrollTo({top:y}); return; }
+  if(b.dataset.go) return set({screen:b.dataset.go});
+  if(b.dataset.node!==undefined) return set({screen:"node", node:+b.dataset.node, step:0, phase:"caso", chosen:null});
+  if(b.dataset.phase) return set({phase:b.dataset.phase});
+  if(b.dataset.prev){ if(S.step>0) return set({step:S.step-1, phase:"consecuencia", chosen:dec(S.node,S.step-1).best}); if(S.node===0) return set({screen:"cover"}); const pn=S.node-1, ps=nSteps(pn)-1; return set({node:pn, step:ps, phase:"consecuencia", chosen:dec(pn,ps).best}); }
+  if(b.dataset.cont){ const k=(window.LIVE&&window.LIVE.top&&window.LIVE.top())||dec(S.node,S.step).best, dk=dkey(S.node,S.step); const seen=Object.assign({},S.seen); const cur=seen[dk]||[]; if(!cur.includes(k)) seen[dk]=[...cur,k]; const picks=Object.assign({},S.picks); if(!picks[dk]) picks[dk]=k; return set({phase:"consecuencia", chosen:k, seen, picks}); }
+  if(b.dataset.choose){ const k=b.dataset.choose, dk=dkey(S.node,S.step); const seen=Object.assign({},S.seen); const cur=seen[dk]||[]; if(!cur.includes(k)) seen[dk]=[...cur,k]; const picks=Object.assign({},S.picks); if(!picks[dk]) picks[dk]=k; return set({phase:"consecuencia", chosen:k, seen, picks}); }
+  if(b.dataset.step) return set({step:S.step+1, phase:"caso", chosen:null});
+  if(b.dataset.next) return S.node<CASES.length-1 ? set({node:S.node+1, step:0, phase:"caso", chosen:null}) : set({screen:"debrief"});
+  if(b.id==="bTimer"){
+    stopTimer(); tLeft = 15; const el = $("#timer"); el.classList.remove("end"); el.textContent = "0:15";
+    timer = setInterval(()=>{ tLeft--; el.textContent = Math.floor(tLeft/60)+":"+String(tLeft%60).padStart(2,"0"); if(tLeft<=0){ stopTimer(); set({phase:"voto"}); } },1000);
+  }
+});
+if(T.noNotes) $("#bNotes").style.display="none"; else $("#bNotes").addEventListener("click", ()=>set({notes:!S.notes}));
+$("#bFull").addEventListener("click", ()=>{ try{ document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){} });
+let resetArm = false;
+$("#bReset").addEventListener("click", e=>{
+  const b = e.currentTarget;
+  if(!resetArm){ resetArm = true; b.textContent = "Confirmar: borra la sesión"; setTimeout(()=>{ resetArm=false; b.textContent="Reiniciar"; },4000); return; }
+  resetArm = false; b.textContent = "Reiniciar"; S = blank(); save(); render();
+});
+document.addEventListener("keydown", e=>{
+  if(!T.noNotes && (e.key==="n"||e.key==="N")) set({notes:!S.notes});
+  if(e.key==="f"||e.key==="F") $("#bFull").click();
+});
+window.APP = {get S(){return S;}, T, CASES, KEYS, esc, render, nSteps, dec, dkey, fit};
+render();
+</script><script src="qr.js"></script><script type="module" src="live.js?v=t"></script></body></html>
