@@ -89,7 +89,15 @@ function namesHTML(v) {
   const rows = A().KEYS.filter(k => g[k].length).map(k => `<div style="display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;margin:3px 0"><b style="min-width:1.4em">${k}</b>${g[k].sort((a, b) => a[1].localeCompare(b[1], "es")).map(([u, nm, an]) => `<span style="border:1px solid var(--line);border-radius:14px;padding:1px 4px 1px 9px;font-size:.82em">${an ? `<small class="muted">${esc2(an)}</small> ` : ""}${esc2(nm)}${bonos[u] ? ` <b>★${bonos[u]}</b>` : ""} <button class="btn ghost" data-bonus="${u}" title="+1 por argumentar bien" style="padding:0 6px;min-height:0;font-size:.9em">+1</button></span>`).join("")}</div>`).join("");
   return `<div class="stack" style="gap:2px;margin-top:8px"><h3 style="font-size:.9em">Quién eligió cada opción</h3>${rows}<p class="muted" style="font-size:.75em;margin:2px 0 0">+1 = argumentó bien (suma al ranking).</p></div>`;
 }
-const PICK_MS = 60000;
+const PICK_MS = 60000, CLOSE_MS = 120000;
+let locked = false;
+function lockPage() {
+  if (locked) return; locked = true; podium = false;
+  try { if (unsubSes) unsubSes(); if (unsubVotes) unsubVotes(); } catch (e) {} unsubSes = unsubVotes = null; code = ses = null;
+  try { sessionStorage.removeItem("casos-clave-" + location.pathname); } catch (e) {}
+  try { localStorage.removeItem(KEY()); localStorage.removeItem(A().T.store); } catch (e) {}
+  document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:sans-serif"><div><h2>Sesión terminada</h2><p>La página se cerró. Para usarla de nuevo, abra el enlace e ingrese la clave.</p></div></div>';
+}
 let picks = { key: null, 1: null, 2: null };
 function pickWho(n) {
   const all = Object.entries(votes || {}).map(([u, x]) => ({ u, ...x })).filter(x => x.op);
@@ -221,17 +229,22 @@ function renderPodium() {
   el.innerHTML = `<div style="letter-spacing:.2em;font-size:clamp(14px,2vw,22px);color:var(--ues,#A6192E);font-weight:700">PODIO · MEJORES PUNTAJES</div>
     ${rows.length ? rows.map(r => `<div style="font-size:${r.place === 1 ? "clamp(34px,7vw,92px)" : "clamp(26px,5vw,64px)"};font-weight:${r.place === 1 ? 800 : 700};line-height:1.1">${medal[r.place - 1]} ${esc2(r.nombre)} <span style="font-family:var(--f-mono,monospace);font-weight:600;font-size:.55em;color:var(--ues,#A6192E)">${r.p} ${r.p === 1 ? "punto" : "puntos"}</span></div>`).join("") : `<div style="font-size:clamp(20px,3vw,36px)">Sin participantes.</div>`}
     <div style="font-size:clamp(12px,1.5vw,18px);opacity:.7">Aciertos más puntos por argumentar. Gracias por participar.</div>
-    <button class="btn ghost" id="lvPodiumX" style="margin-top:2vh">Cerrar podio (Esc)</button>`;
+    <button class="btn ghost" id="lvPodiumX" style="margin-top:2vh">Cerrar podio (Esc)</button><div id="lvLockTxt" class="muted" style="font-size:clamp(12px,1.6vw,18px)"></div>`;
 }
 async function finishSession() {
   if (!code || !ses) return;
   await loadRank();
-  await update(ref(db, "sesiones/" + code), { cerrada: true, abierta: false });
+  await update(ref(db, "sesiones/" + code), { cerrada: true, abierta: false, cierre: nowS() + CLOSE_MS });
   podium = true; paint();
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape" && podium) { podium = false; renderPodium(); } });
 
 setInterval(() => {
+  if (ses && ses.cerrada && ses.cierre) {
+    const rem = ses.cierre - nowS();
+    if (rem <= 0) { lockPage(); return; }
+    const t = document.getElementById("lvLockTxt"); if (t) { const tt = Math.ceil(rem / 1000); t.textContent = "La página se cerrará sola en " + Math.floor(tt / 60) + ":" + String(tt % 60).padStart(2, "0"); }
+  }
   document.querySelectorAll(".pk .bar i").forEach(b => {
     const rem = Math.max(0, +b.dataset.until - Date.now());
     b.style.width = (rem / PICK_MS * 100) + "%";
