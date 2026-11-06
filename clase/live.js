@@ -102,7 +102,7 @@ function lockPage() {
   try { if (unsubSes) unsubSes(); if (unsubVotes) unsubVotes(); } catch (e) {} unsubSes = unsubVotes = null; code = ses = null;
   try { sessionStorage.removeItem("casos-clave-" + location.pathname); } catch (e) {}
   try { localStorage.removeItem(KEY()); localStorage.removeItem(A().T.store); } catch (e) {}
-  document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:sans-serif"><div><h2>Sesión terminada</h2><p>La página se cerró. Para usarla de nuevo, abra el enlace e ingrese la clave.</p></div></div>';
+  document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:sans-serif"><div><h2>Sesión terminada</h2><p>La página se cerró. Para usarla de nuevo, abra el enlace e ingrese la clave.</p><button onclick="location.reload()" style="font:inherit;padding:.6em 1.2em;border-radius:8px;border:1.5px solid #999;cursor:pointer;margin-top:8px">Ingresar clave</button></div></div>';
 }
 let picks = { key: null, 1: null, 2: null };
 function pickWho(n) {
@@ -205,7 +205,7 @@ function paintCover() {
   if (err) { el.innerHTML = `<p class="muted" style="font-size:.75em">${A().esc(err)}</p>`; return; }
   if (!ready) { el.innerHTML = `<p class="muted" style="font-size:.75em">Conectando respuestas por celular…</p>`; return; }
   if (!code) { el.innerHTML = `<button class="btn primary" id="lvStart">Activar respuestas por celular</button>`; return; }
-  if (ses && ses.cerrada) { el.innerHTML = `<div class="stack" style="border-top:1px solid var(--line);padding-top:12px"><h3>Sesión finalizada</h3><p class="muted">El código ${code} ya no se puede usar. Cada sesión necesita su propio código.</p><div><button class="btn primary" id="lvNew">Nueva sesión con código nuevo</button> <button class="btn" id="lvPodium">Ver podio</button></div></div>`; return; }
+  if (ses && ses.cerrada) { el.innerHTML = `<div class="stack" style="border-top:1px solid var(--line);padding-top:12px"><h3>Sesión finalizada</h3><p class="muted">El código ${code} ya no se puede usar. Cada sesión necesita su propio código.</p><div><button class="btn" id="lvPodium">Ver podio</button></div></div>`; return; }
   const url = STUDENT_URL + "?c=" + code + (/intern/i.test(A().T.voters || "") ? "&y=Interno" : /residen/i.test(A().T.voters || "") ? "&y=res" : "");
   el.innerHTML = `<div class="stack" style="border-top:1px solid var(--line);padding-top:12px">
     <h3>Respuestas por celular</h3>
@@ -222,7 +222,7 @@ function paintCover() {
 }
 function paintPanel(S) {
   const el = $id("livePanel"); if (!el || !code || !ses) return;
-  if (ses.cerrada) { el.innerHTML = `<h3>Respuestas por celular</h3><p>Sesión finalizada: el código ${code} ya no se puede usar.</p><div><button class="btn" id="lvPodium">Ver podio</button> <button class="btn primary" id="lvNew">Nueva sesión con código nuevo</button></div>`; return; }
+  if (ses.cerrada) { el.innerHTML = `<h3>Respuestas por celular</h3><p>Sesión finalizada: el código ${code} ya no se puede usar.</p><div><button class="btn" id="lvPodium">Ver podio</button></div>`; return; }
   const n = S.node, caso = vkey(), mine = ses.caso === caso, D = A().dec(n, S.step);
   watchVotes(caso);
   // abre sola al entrar en la votación (también al repetir una decisión que quedó sin votos)
@@ -273,7 +273,7 @@ async function finishSession() {
   await update(ref(db, "sesiones/" + code), { cerrada: true, abierta: false, cierre: nowS() + CLOSE_MS });
   podium = true; paint();
 }
-document.addEventListener("keydown", e => { if (e.key === "Escape" && podium) { podium = false; renderPodium(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && podium) { podium = false; renderPodium(); if (ses && ses.cerrada) lockPage(); } });
 
 setInterval(() => {
   if (ses && ses.cerrada && ses.cierre) {
@@ -300,6 +300,7 @@ let last = null;
 function paint() {
   const S = A() && A().S; if (!S) return;
   renderPodium();
+  { const rb = document.getElementById("bReset"); if (rb) rb.style.display = ses && ses.cerrada ? "none" : ""; }
   paintTurns(S); paintBonus();
   if (!(S.screen === "node" && S.phase === "voto")) autoKey = null; // al volver a la votación se abre otra vez
   if (S.screen === "cover") paintCover();
@@ -335,7 +336,7 @@ document.addEventListener("click", e => {
   if (b.id === "lvRank") loadRank();
   if (b.id === "lvFinish") { if (confirm("¿Finalizar la sesión? El código dejará de funcionar y no se podrá volver a usar.")) finishSession(); }
   if (b.id === "lvPodium") { loadRank().then(() => { podium = true; paint(); }); }
-  if (b.id === "lvPodiumX") { podium = false; renderPodium(); }
+  if (b.id === "lvPodiumX") { podium = false; renderPodium(); if (ses && ses.cerrada) lockPage(); }
   if (b.dataset.bonus && code) { const u = b.dataset.bonus, cur = (ses && ses.bonos && ses.bonos[u]) || 0; update(ref(db, "sesiones/" + code), { ["bonos/" + u]: cur + 1 }); }
 });
 window.LIVE = { mount: () => paint(), top: () => { const c = tally(votes); if (!c.n) return null; const ks = ["A","B","C","D"]; let best = null; ks.forEach(k => { if (best === null || c.c[k] > c.c[best]) best = k; }); return best; } };
