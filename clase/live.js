@@ -9,7 +9,7 @@ const auth = getAuth(app), db = getDatabase(app);
 if (FIREBASE_CONFIG.useEmulator) { connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true }); connectDatabaseEmulator(db, "127.0.0.1", 9000); }
 const STUDENT_URL = new URL("./", location.href).href;
 let uid = null, ready = false, err = "";
-let rankData = null, pick = null, podium = false;
+let rankData = null, pick = null, podium = false, autoKey = null;
 let code = null, ses = null, votes = {}, unsubSes = null, unsubVotes = null, votesKey = null;
 
 const A = () => window.APP;
@@ -140,6 +140,8 @@ function paintPanel(S) {
   if (ses.cerrada) { el.innerHTML = `<h3>Respuestas por celular</h3><p>Sesión finalizada: el código ${code} ya no se puede usar.</p><div><button class="btn" id="lvPodium">Ver podio</button> <button class="btn primary" id="lvNew">Nueva sesión con código nuevo</button></div>`; return; }
   const n = S.node, caso = vkey(), mine = ses.caso === caso, D = A().dec(n, S.step);
   watchVotes(caso);
+  if (mine) autoKey = null;
+  else if (autoKey !== code + "|" + caso) { autoKey = code + "|" + caso; openVote(); }
   let body;
   if (mine && ses.abierta) {
     const { n: cnt } = tally(votes);
