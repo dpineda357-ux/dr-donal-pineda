@@ -11,6 +11,7 @@ const STUDENT_URL = new URL("./", location.href).href;
 let uid = null, ready = false, err = "";
 let rankData = null, pick = null, podium = false, autoKey = null, offset = 0, closedKey = null;
 const VOTE_MS = 15000;
+const VER = new URL(import.meta.url).searchParams.get("v") || "?";
 let code = null, ses = null, votes = {}, unsubSes = null, unsubVotes = null, votesKey = null;
 
 const A = () => window.APP;
@@ -172,7 +173,7 @@ function paintPanel(S) {
   } else {
     body = `<p>Abriendo la votación… Código <b style="font-family:var(--f-mono)">${code}</b>.</p>`;
   }
-  el.innerHTML = `<h3>Respuestas por celular</h3>${body}`;
+  el.innerHTML = `<h3>Respuestas por celular</h3>${body}<p class="muted" style="font-size:.7em;margin-top:10px">versión ${VER}</p>`;
 }
 async function paintDebrief() {
   const el = $id("liveDebrief"); if (!el || !code) return;
