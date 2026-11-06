@@ -42,7 +42,8 @@ input:focus,select:focus{outline:3px solid var(--oA);outline-offset:1px}
       <label for="code">Código de la pantalla</label>
       <input id="code" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="4 dígitos">
       <label for="name">Nombre y apellido</label>
-      <input id="name" maxlength="60" required autocomplete="name">
+      <input id="name" maxlength="60" required autocomplete="name" placeholder="Nombre y primer apellido">
+      <div class="muted" style="font-size:.8em">Su nombre se verá en la pantalla del ponente y suma a su puntaje.</div>
       <label for="year">Año</label>
       <select id="year" required><option value="">Elegir</option><option>R1</option><option>R2</option><option>R3</option><option>Interno</option><option>Otro</option></select>
       <button class="btn" id="go" type="submit">Entrar</button>
@@ -84,6 +85,7 @@ async function join(c) {
   await authReady;
   const s = await get(ref(db, "sesiones/" + c));
   if (!s.exists()) { $("jerr").textContent = "Ese código no existe. Revise la pantalla."; return false; }
+  if (s.val() && s.val().cerrada) { $("jerr").textContent = "Esa sesión ya terminó. El código no se puede volver a usar."; ls.del("rc-joined"); return false; }
   code = c; me = { nombre: $("name").value.trim(), anio: $("year").value };
   ls.set("rc-code", c); ls.set("rc-name", me.nombre); ls.set("rc-year", me.anio); ls.set("rc-joined", c);
   $("join").hidden = true; $("room").hidden = false;
@@ -93,6 +95,7 @@ async function join(c) {
 }
 const checked = {};
 function paint() {
+  if (ses && ses.cerrada) { $("qtitle").textContent = "La sesión terminó"; $("hint").textContent = "Gracias por participar. Este código ya no se puede usar."; $("opts").innerHTML = ""; $("st").textContent = ""; return; }
   if (ses && ses.caso !== "0" && !checked[ses.caso]) {
     const cs = ses.caso; checked[cs] = true;
     get(ref(db, `votos/${code}/${cs}/${uid}`)).then(s => { if (s.exists() && !mine[cs]) { mine[cs] = s.val().op; paint(); } }).catch(() => {});
@@ -118,6 +121,7 @@ $("f").addEventListener("submit", async e => {
   e.preventDefault(); $("jerr").textContent = "";
   const c = $("code").value.trim();
   if (!/^\d{4}$/.test(c)) { $("jerr").textContent = "El código tiene 4 dígitos."; return; }
+  if ($("name").value.trim().split(/\s+/).filter(w => w.length > 1).length < 2) { $("jerr").textContent = "Escriba nombre y apellido."; return; }
   $("go").disabled = true; await join(c); $("go").disabled = false;
 });
 $("leave").addEventListener("click", () => { unsub.forEach(f => f()); unsub = []; ls.del("rc-joined"); mine = {}; $("room").hidden = true; $("join").hidden = false; });
