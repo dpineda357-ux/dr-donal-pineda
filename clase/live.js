@@ -9,7 +9,8 @@ const auth = getAuth(app), db = getDatabase(app);
 if (FIREBASE_CONFIG.useEmulator) { connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true }); connectDatabaseEmulator(db, "127.0.0.1", 9000); }
 const STUDENT_URL = new URL("./", location.href).href;
 let uid = null, ready = false, err = "";
-let rankData = null, pick = null, podium = false, autoKey = null;
+let rankData = null, pick = null, podium = false, autoKey = null, offset = 0, closedKey = null;
+const VOTE_MS = 15000;
 let code = null, ses = null, votes = {}, unsubSes = null, unsubVotes = null, votesKey = null;
 
 const A = () => window.APP;
@@ -19,6 +20,7 @@ const $id = id => document.getElementById(id);
 onAuthStateChanged(auth, u => {
   if (!u) return;
   uid = u.uid; ready = true;
+  onValue(ref(db, ".info/serverTimeOffset"), sn => { offset = sn.val() || 0; });
   try { const c = localStorage.getItem(KEY()); if (c) attach(c); } catch (e) {}
   paint();
 });
@@ -59,7 +61,8 @@ function watchVotes(n) {
 }
 const vkey = () => A().dkey(A().S.node, A().S.step);
 const vtitle = () => { const S = A().S, m = A().nSteps(S.node); return A().CASES[S.node].title + (m > 1 ? " · decisión " + (S.step + 1) : ""); };
-const openVote = () => { pick = null; return update(ref(db, "sesiones/" + code), { caso: vkey(), titulo: vtitle(), abierta: true }); };
+const nowS = () => Date.now() + offset;
+const openVote = () => { pick = null; closedKey = null; return update(ref(db, "sesiones/" + code), { caso: vkey(), titulo: vtitle(), abierta: true, hasta: nowS() + VOTE_MS, dur: VOTE_MS }); };
 const closeVote = () => update(ref(db, "sesiones/" + code), { abierta: false });
 
 function tally(v) {
@@ -146,14 +149,14 @@ function paintPanel(S) {
   if (mine && ses.abierta) {
     const { n: cnt } = tally(votes);
     body = `<p>Votación abierta en los celulares. Código <b style="font-family:var(--f-mono)">${code}</b>.</p>
+      <div style="display:flex;align-items:center;gap:12px"><div style="flex:1;height:16px;border-radius:8px;background:var(--line,#ddd);overflow:hidden"><div id="lvBar" style="height:100%;width:100%;background:var(--ues,#A6192E)"></div></div><b id="lvSec" style="font-family:var(--f-mono);font-size:1.6em;min-width:2.2em;text-align:right">15</b></div>
       <p style="font-family:var(--f-mono);font-size:2.2em;margin:0">${cnt}</p><p class="muted" style="margin-top:0">respuesta${cnt === 1 ? "" : "s"}</p>
-      <div><button class="btn primary" id="lvClose">Cerrar y mostrar porcentajes</button></div>`;
+      <div><button class="btn" id="lvClose">Cerrar ahora</button></div>`;
   } else if (mine && tally(votes).n) {
     body = `${barsHTML(votes, (S.seen[caso] || []).includes(D.best) ? D.best : null)}${namesHTML(votes)}${pickHTML(votes, D.best)}
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn" id="lvPick">Sortear quién explica</button><button class="btn" id="lvRank">Ver ranking</button><button class="btn ghost" id="lvOpen">Reabrir votación</button></div>${rankHTML()}`;
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn" id="lvPick">Sortear quién explica</button><button class="btn" id="lvRank">Ver ranking</button><button class="btn ghost" id="lvOpen">Reabrir votación (15 s)</button></div>${rankHTML()}`;
   } else {
-    body = `<p>Código <b style="font-family:var(--f-mono)">${code}</b>. ${A().esc(A().T.voters || "Los residentes")} eligen A, B, C o D en su celular.</p>
-      <div><button class="btn primary" id="lvOpen">Abrir votación${A().nSteps(n) > 1 ? " de la decisión " + (S.step + 1) : " del caso " + (n + 1)}</button></div>`;
+    body = `<p>Abriendo la votación… Código <b style="font-family:var(--f-mono)">${code}</b>.</p>`;
   }
   el.innerHTML = `<h3>Respuestas por celular</h3>${body}`;
 }
@@ -188,6 +191,15 @@ async function finishSession() {
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape" && podium) { podium = false; renderPodium(); } });
 
+setInterval(() => {
+  if (!code || !ses || !ses.abierta || !ses.hasta || ses.cerrada) return;
+  const rem = ses.hasta - nowS(), dur = ses.dur || VOTE_MS;
+  const bar = document.getElementById("lvBar"), sec = document.getElementById("lvSec");
+  if (bar) { bar.style.width = Math.max(0, Math.min(100, rem / dur * 100)) + "%"; bar.style.background = rem < 5000 ? "#c62828" : "var(--ues,#A6192E)"; }
+  if (sec) sec.textContent = Math.max(0, Math.ceil(rem / 1000));
+  const k = ses.caso + "|" + ses.hasta;
+  if (rem <= 0 && closedKey !== k) { closedKey = k; closeVote(); }
+}, 100);
 let last = null;
 function paint() {
   const S = A() && A().S; if (!S) return;

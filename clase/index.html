@@ -54,6 +54,7 @@ input:focus,select:focus{outline:3px solid var(--oA);outline-offset:1px}
     <div class="card">
       <div class="muted" id="who"></div>
       <h1 id="qtitle">Esperando la pregunta…</h1>
+      <div id="tbar" hidden style="height:12px;border-radius:6px;background:var(--line);overflow:hidden;margin:10px 0"><div id="tfill" style="height:100%;width:100%;background:var(--ues,#A6192E)"></div></div>
       <div class="muted" id="hint">Mire la pantalla. Cuando el ponente abra la votación, aparecerán las opciones.</div>
       <div class="opts" id="opts"></div>
       <div class="status" id="st" role="status" aria-live="polite"></div>
@@ -80,7 +81,7 @@ $("year").value = ls.get("rc-year") || "";
 const qy = new URLSearchParams(location.search).get("y");
 if (qy) { $("year").value = qy; if ($("year").value === qy) { $("year").hidden = true; const lb = document.querySelector('label[for="year"]'); if (lb) lb.hidden = true; } }
 
-const authReady = new Promise(res => onAuthStateChanged(auth, u => { if (u) { uid = u.uid; res(); } }));
+const authReady = new Promise(res => onAuthStateChanged(auth, u => { if (u) { uid = u.uid; onValue(ref(db, ".info/serverTimeOffset"), sn => { offset = sn.val() || 0; }); res(); } }));
 signInAnonymously(auth).catch(e => { $("jerr").textContent = "Sin conexión con el servidor (" + e.code + ")."; });
 
 async function join(c) {
@@ -96,13 +97,16 @@ async function join(c) {
   return true;
 }
 const checked = {};
+let offset = 0;
+const nowS = () => Date.now() + offset;
+const isOpen = () => ses && ses.abierta && ses.caso !== "0" && !(ses.hasta && nowS() > ses.hasta + 800);
 function paint() {
   if (ses && ses.cerrada) { $("qtitle").textContent = "La sesión terminó"; $("hint").textContent = "Gracias por participar. Este código ya no se puede usar."; $("opts").innerHTML = ""; $("st").textContent = ""; return; }
   if (ses && ses.caso !== "0" && !checked[ses.caso]) {
     const cs = ses.caso; checked[cs] = true;
     get(ref(db, `votos/${code}/${cs}/${uid}`)).then(s => { if (s.exists() && !mine[cs]) { mine[cs] = s.val().op; paint(); } }).catch(() => {});
   }
-  const open = ses && ses.abierta && ses.caso !== "0";
+  const open = isOpen();
   const caso = ses ? ses.caso : "0";
   const sel = mine[caso];
   $("qtitle").textContent = ses && caso !== "0" ? "Caso " + caso.split("-")[0] + (ses.titulo ? ": " + ses.titulo : "") : "Esperando la pregunta…";
@@ -111,8 +115,15 @@ function paint() {
   $("st").className = "status" + (sel ? " ok" : "");
   $("st").textContent = sel ? "Respuesta registrada: " + sel : "";
 }
+setInterval(() => {
+  const tb = $("tbar"); if (!ses || !ses.abierta || !ses.hasta || ses.cerrada) { if (tb) tb.hidden = true; return; }
+  const rem = ses.hasta - nowS(), dur = ses.dur || 15000;
+  tb.hidden = rem < -800;
+  $("tfill").style.width = Math.max(0, Math.min(100, rem / dur * 100)) + "%"; $("tfill").style.background = rem < 5000 ? "#c62828" : "";
+  if (rem <= -800 && !tb.dataset.done) { tb.dataset.done = "1"; paint(); } if (rem > 0) delete tb.dataset.done;
+}, 100);
 $("opts").addEventListener("click", async e => {
-  const b = e.target.closest("button[data-k]"); if (!b || !ses || !ses.abierta) return;
+  const b = e.target.closest("button[data-k]"); if (!b || !ses || !isOpen()) return;
   const k = b.dataset.k, caso = ses.caso;
   try {
     await set(ref(db, `votos/${code}/${caso}/${uid}`), { nombre: me.nombre, anio: me.anio, op: k, t: serverTimestamp() });
