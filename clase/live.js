@@ -306,6 +306,7 @@ function paint() {
   if (S.screen === "cover") paintCover();
   else if (S.screen === "node" && S.phase === "voto") { paintPanel(S); paintCols(S); }
   else if (S.screen === "debrief") paintDebrief();
+  if (A().fit) A().fit();
 }
 async function downloadCSV() {
   const snap = await get(ref(db, "votos/" + code));
