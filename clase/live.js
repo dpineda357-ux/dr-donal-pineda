@@ -89,26 +89,51 @@ function namesHTML(v) {
   const rows = A().KEYS.filter(k => g[k].length).map(k => `<div style="display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;margin:3px 0"><b style="min-width:1.4em">${k}</b>${g[k].sort((a, b) => a[1].localeCompare(b[1], "es")).map(([u, nm, an]) => `<span style="border:1px solid var(--line);border-radius:14px;padding:1px 4px 1px 9px;font-size:.82em">${an ? `<small class="muted">${esc2(an)}</small> ` : ""}${esc2(nm)}${bonos[u] ? ` <b>★${bonos[u]}</b>` : ""} <button class="btn ghost" data-bonus="${u}" title="+1 por argumentar bien" style="padding:0 6px;min-height:0;font-size:.9em">+1</button></span>`).join("")}</div>`).join("");
   return `<div class="stack" style="gap:2px;margin-top:8px"><h3 style="font-size:.9em">Quién eligió cada opción</h3>${rows}<p class="muted" style="font-size:.75em;margin:2px 0 0">+1 = argumentó bien (suma al ranking).</p></div>`;
 }
-function pickHTML(v, best) {
-  if (!pick) return "";
-  return `<p style="margin:6px 0 0"><b>Pedir opinión a:</b> ${esc2(pick.maj)} (${pick.majTag || "mayoría"})${pick.min ? " y " + esc2(pick.min) + " (" + (pick.minTag || "votó distinto") + ")" : ""}.</p>`;
-}
-function doPick() {
-  const g = {}; Object.values(votes || {}).forEach(x => { if (x.op) (g[x.op] = g[x.op] || []).push(x.nombre); });
-  const ks = Object.keys(g).sort((a, b) => g[b].length - g[a].length); if (!ks.length) return;
+const PICK_MS = 60000;
+let picks = { key: null, 1: null, 2: null };
+function pickWho(n) {
+  const all = Object.entries(votes || {}).map(([u, x]) => ({ u, ...x })).filter(x => x.op);
+  if (!all.length) return null;
+  const cnt = {}; all.forEach(x => { cnt[x.op] = (cnt[x.op] || 0) + 1; });
+  const top = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
   const r = arr => arr[Math.floor(Math.random() * arr.length)];
-  const rest = ks.slice(1).flatMap(k => g[k]);
-  if (RES()) { // residentes: discusión escalonada, primero un R1 de la mayoría y luego un R2/R3 que votó distinto
-    const all = Object.values(votes || {}).filter(x => x.op), top = ks[0];
-    const yr = (x, ys) => ys.includes(x.anio);
-    const r1 = all.filter(x => x.op === top && yr(x, ["R1"])), r1any = all.filter(x => yr(x, ["R1"]));
-    const first = r1.length ? r(r1) : r1any.length ? r(r1any) : r(all.filter(x => x.op === top));
-    const r23 = all.filter(x => x.op !== first.op && yr(x, ["R2", "R3"])), r23any = all.filter(x => yr(x, ["R2", "R3"]) && x !== first);
-    const second = r23.length ? r(r23) : r23any.length ? r(r23any) : null;
-    pick = { maj: first.nombre, majTag: (first.anio || "") + (first.op === top ? ", mayoría" : ""), min: second ? second.nombre : "", minTag: second ? (second.anio || "") + (second.op !== first.op ? ", votó distinto" : ", mismo voto") : "" };
-    return;
+  const first = picks[1] && picks[1].u;
+  const yr = (x, ys) => ys.includes(x.anio);
+  let pool, tag;
+  if (n === 1) {
+    pool = RES() ? all.filter(x => x.op === top && yr(x, ["R1"])) : [];
+    if (!pool.length) pool = all.filter(x => x.op === top);
+    tag = "mayoría";
+  } else {
+    const diff = all.filter(x => x.op !== top && x.u !== first);
+    pool = RES() ? diff.filter(x => yr(x, ["R2", "R3"])) : [];
+    if (!pool.length) pool = diff;
+    tag = "votó distinto";
+    if (!pool.length) return { none: true };
   }
-  pick = { maj: r(g[ks[0]]), min: rest.length ? r(rest) : "" };
+  if (!pool.length) return null;
+  const p = r(pool);
+  return { u: p.u, nombre: p.nombre, tag: (RES() && p.anio ? p.anio + ", " : "") + tag, until: Date.now() + PICK_MS };
+}
+function doPick(n) {
+  const k = vkey(); if (picks.key !== k) picks = { key: k, 1: null, 2: null };
+  const p = pickWho(n); if (!p) return;
+  picks[n] = p.none ? { none: true, until: 0 } : p;
+}
+function paintTurns(S) {
+  if (!(S.screen === "node" && S.phase === "voto")) return;
+  const k = vkey(); if (picks.key !== k) picks = { key: k, 1: null, 2: null };
+  [1, 2].forEach(n => {
+    const box = document.getElementById("turn" + n); if (!box) return;
+    const p = picks[n]; let pk = box.querySelector(".pk");
+    const sig = p ? (p.none ? "none" : p.u + "|" + p.until) : "";
+    if (!p) { if (pk) pk.remove(); return; }
+    if (pk && pk.dataset.sig === sig) return;
+    if (!pk) { pk = document.createElement("div"); pk.className = "pk"; box.appendChild(pk); }
+    pk.dataset.sig = sig;
+    pk.innerHTML = p.none ? `<span class="muted">Nadie votó distinto: pida un argumento a cualquiera.</span>`
+      : `<div class="nm">${esc2(p.nombre)} <span class="muted" style="font-size:.6em;font-weight:400">(${esc2(p.tag)})</span></div><div class="bar"><i data-until="${p.until}" style="width:${Math.max(0, Math.min(100, (p.until - Date.now()) / PICK_MS * 100))}%"></i></div><span class="muted pks" style="font-size:.8em"></span>`;
+  });
 }
 async function loadRank() {
   if (!code) return;
@@ -156,7 +181,7 @@ function paintPanel(S) {
   const n = S.node, caso = vkey(), mine = ses.caso === caso, D = A().dec(n, S.step);
   watchVotes(caso);
   // abre sola al entrar en la votación (también al repetir una decisión que quedó sin votos)
-  if (autoKey !== code + "|" + caso && !(mine && (ses.abierta || tally(votes).n))) { autoKey = code + "|" + caso; openVote(); }
+  if (autoKey !== code + "|" + caso && !(mine && (ses.abierta || tally(votes).n))) { autoKey = code + "|" + caso; setTimeout(openVote, 0); }
   else if (mine && ses.abierta) autoKey = code + "|" + caso;
   let body;
   if (mine && ses.abierta) {
@@ -166,8 +191,8 @@ function paintPanel(S) {
       <p style="font-family:var(--f-mono);font-size:2.2em;margin:0">${cnt}</p><p class="muted" style="margin-top:0">respuesta${cnt === 1 ? "" : "s"}</p>
       <div><button class="btn" id="lvClose">Cerrar ahora</button></div>`;
   } else if (mine && tally(votes).n) {
-    body = `${barsHTML(votes, (S.seen[caso] || []).includes(D.best) ? D.best : null)}${namesHTML(votes)}${pickHTML(votes, D.best)}
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn" id="lvPick">Sortear quién explica</button><button class="btn" id="lvRank">Ver ranking</button></div>${rankHTML()}`;
+    body = `${barsHTML(votes, (S.seen[caso] || []).includes(D.best) ? D.best : null)}${namesHTML(votes)}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn" id="lvPick1">Sortear 1 · ${RES() ? "un R1 de la mayoría" : "un interno de la mayoría"}</button><button class="btn" id="lvPick2">Sortear 2 · ${RES() ? "un R2/R3 que votó distinto" : "un interno que votó distinto"}</button><button class="btn" id="lvRank">Ver ranking</button></div>${rankHTML()}`;
   } else if (mine && !ses.abierta) {
     body = `<p>Votación cerrada sin respuestas. Código <b style="font-family:var(--f-mono)">${code}</b>.</p>`;
   } else {
@@ -207,6 +232,13 @@ async function finishSession() {
 document.addEventListener("keydown", e => { if (e.key === "Escape" && podium) { podium = false; renderPodium(); } });
 
 setInterval(() => {
+  document.querySelectorAll(".pk .bar i").forEach(b => {
+    const rem = Math.max(0, +b.dataset.until - Date.now());
+    b.style.width = (rem / PICK_MS * 100) + "%";
+    const t = b.closest(".pk").querySelector(".pks"); if (t) t.textContent = rem > 0 ? Math.ceil(rem / 1000) + " s" : "Tiempo agotado";
+  });
+}, 200);
+setInterval(() => {
   if (!code || !ses || !ses.abierta || !ses.hasta || ses.cerrada) return;
   const rem = ses.hasta - nowS(), dur = ses.dur || VOTE_MS;
   const bar = document.getElementById("lvBar"), sec = document.getElementById("lvSec");
@@ -219,6 +251,7 @@ let last = null;
 function paint() {
   const S = A() && A().S; if (!S) return;
   renderPodium();
+  paintTurns(S);
   if (!(S.screen === "node" && S.phase === "voto")) autoKey = null; // al volver a la votación se abre otra vez
   if (S.screen === "cover") paintCover();
   else if (S.screen === "node" && S.phase === "voto") paintPanel(S);
@@ -245,7 +278,8 @@ document.addEventListener("click", e => {
   if (b.id === "lvOpen") openVote();
   if (b.id === "lvClose") closeVote();
   if (b.id === "lvCSV") downloadCSV();
-  if (b.id === "lvPick") { doPick(); paint(); }
+  if (b.id === "lvPick1") { doPick(1); paint(); }
+  if (b.id === "lvPick2") { doPick(2); paint(); }
   if (b.id === "lvRank") loadRank();
   if (b.id === "lvFinish") { if (confirm("¿Finalizar la sesión? El código dejará de funcionar y no se podrá volver a usar.")) finishSession(); }
   if (b.id === "lvPodium") { loadRank().then(() => { podium = true; paint(); }); }
