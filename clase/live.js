@@ -154,8 +154,9 @@ function paintPanel(S) {
   if (ses.cerrada) { el.innerHTML = `<h3>Respuestas por celular</h3><p>Sesión finalizada: el código ${code} ya no se puede usar.</p><div><button class="btn" id="lvPodium">Ver podio</button> <button class="btn primary" id="lvNew">Nueva sesión con código nuevo</button></div>`; return; }
   const n = S.node, caso = vkey(), mine = ses.caso === caso, D = A().dec(n, S.step);
   watchVotes(caso);
-  if (mine) autoKey = null;
-  else if (autoKey !== code + "|" + caso) { autoKey = code + "|" + caso; openVote(); }
+  // abre sola al entrar en la votación (también al repetir una decisión que quedó sin votos)
+  if (autoKey !== code + "|" + caso && !(mine && (ses.abierta || tally(votes).n))) { autoKey = code + "|" + caso; openVote(); }
+  else if (mine && ses.abierta) autoKey = code + "|" + caso;
   let body;
   if (mine && ses.abierta) {
     const { n: cnt } = tally(votes);
