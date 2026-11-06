@@ -187,7 +187,7 @@ function paintCover() {
         <b style="font-family:var(--f-mono);font-size:2.6em;letter-spacing:.08em">${code}</b>
         <span class="muted" style="font-size:.75em;word-break:break-all">${A().esc(url)}</span></div>
     </div>
-    <div class="stack" style="gap:4px"><label class="muted" style="font-size:.8em" for="lvPon">Nombre de la ponente (vota y suma puntos, pero no entra al sorteo)</label>
+    <div class="stack" style="gap:4px"><label class="muted" style="font-size:.8em" for="lvPon">Nombre ${RES() ? "del ponente" : "de la ponente"} (vota y suma puntos, pero no entra al sorteo)</label>
       <input id="lvPon" value="${A().esc((ses && ses.ponente) || "")}" placeholder="Nombre y apellido tal como lo escribirá" style="font:inherit;padding:.5em .7em;border:1.5px solid var(--line);border-radius:8px;max-width:360px"></div>
     <div><button class="btn ghost" id="lvNew">Nuevo código</button></div></div>`;
   if (window.qrcode) { const q = qrcode(0, "M"); q.addData(url); q.make(); $id("lvQR").innerHTML = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }).replace("<svg", '<svg style="width:150px;height:150px"'); }
