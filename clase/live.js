@@ -165,7 +165,7 @@ function paintCols(S) {
   const show = !!(ses && !ses.cerrada && ses.caso === caso && !ses.abierta && t.n);
   const bonos = (ses && ses.bonos) || {}, mx = Math.max(...A().KEYS.map(k => t.c[k]));
   const g = { A: [], B: [], C: [], D: [] };
-  if (show) Object.entries(votes || {}).forEach(([u, x]) => { if (g[x.op]) g[x.op].push([x.nombre, u]); });
+  if (show) Object.entries(votes || {}).forEach(([u, x]) => { if (g[x.op]) g[x.op].push([x.nombre, u, RES() && x.anio ? x.anio : ""]); });
   const seenBest = (S.seen[caso] || []).includes(D.best);
   A().KEYS.forEach(k => {
     const col = document.querySelector('.vcol[data-k="' + k + '"]'); if (!col) return;
@@ -175,7 +175,7 @@ function paintCols(S) {
     $id("vb-" + k).style.width = p + "%";
     col.classList.toggle("top", show && t.c[k] === mx && mx > 0);
     const names = g[k].sort((a, b) => a[0].localeCompare(b[0], "es")), MAXC = 6;
-    $id("vc-" + k).innerHTML = names.slice(0, MAXC).map(([nm, u]) => `<span class="vchip">${esc2(nm)}${bonos[u] ? " ★" + bonos[u] : ""}</span>`).join("") + (names.length > MAXC ? `<span class="vchip">+${names.length - MAXC} más</span>` : "");
+    $id("vc-" + k).innerHTML = names.slice(0, MAXC).map(([nm, u, an]) => `<span class="vchip">${an ? esc2(an) + " · " : ""}${esc2(nm)}${bonos[u] ? " ★" + bonos[u] : ""}</span>`).join("") + (names.length > MAXC ? `<span class="vchip">+${names.length - MAXC} más</span>` : "");
   });
 }
 async function loadRank() {
