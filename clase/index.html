@@ -79,7 +79,8 @@ $("code").value = qc || ls.get("rc-code") || "";
 $("name").value = ls.get("rc-name") || "";
 $("year").value = ls.get("rc-year") || "";
 const qy = new URLSearchParams(location.search).get("y");
-if (qy) { $("year").value = qy; if ($("year").value === qy) { $("year").style.pointerEvents = "none"; $("year").style.opacity = ".85"; $("year").tabIndex = -1; } }
+if (qy === "res") { [...$("year").options].forEach(o => { if (o.value && !/^R[123]$/.test(o.value)) o.remove(); }); if (!/^R[123]$/.test($("year").value)) $("year").value = ""; }
+else if (qy) { $("year").value = qy; if ($("year").value === qy) { $("year").style.pointerEvents = "none"; $("year").style.opacity = ".85"; $("year").tabIndex = -1; } }
 
 const authReady = new Promise(res => onAuthStateChanged(auth, u => { if (u) { uid = u.uid; onValue(ref(db, ".info/serverTimeOffset"), sn => { offset = sn.val() || 0; }); res(); } }));
 signInAnonymously(auth).catch(e => { $("jerr").textContent = "Sin conexión con el servidor (" + e.code + ")."; });

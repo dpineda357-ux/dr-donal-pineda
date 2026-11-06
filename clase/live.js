@@ -80,22 +80,33 @@ function barsHTML(v, best) {
 
 
 const esc2 = x => A().esc(x);
+const RES = () => /residen/i.test(A().T.voters || "");
 function namesHTML(v) {
   const g = { A: [], B: [], C: [], D: [] };
-  Object.entries(v || {}).forEach(([u, x]) => { if (g[x.op]) g[x.op].push([u, x.nombre]); });
+  Object.entries(v || {}).forEach(([u, x]) => { if (g[x.op]) g[x.op].push([u, x.nombre, RES() && x.anio ? x.anio : ""]); });
   const bonos = (ses && ses.bonos) || {};
-  const rows = A().KEYS.filter(k => g[k].length).map(k => `<div style="display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;margin:3px 0"><b style="min-width:1.4em">${k}</b>${g[k].sort((a, b) => a[1].localeCompare(b[1], "es")).map(([u, nm]) => `<span style="border:1px solid var(--line);border-radius:14px;padding:1px 4px 1px 9px;font-size:.82em">${esc2(nm)}${bonos[u] ? ` <b>★${bonos[u]}</b>` : ""} <button class="btn ghost" data-bonus="${u}" title="+1 por argumentar bien" style="padding:0 6px;min-height:0;font-size:.9em">+1</button></span>`).join("")}</div>`).join("");
+  const rows = A().KEYS.filter(k => g[k].length).map(k => `<div style="display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;margin:3px 0"><b style="min-width:1.4em">${k}</b>${g[k].sort((a, b) => a[1].localeCompare(b[1], "es")).map(([u, nm, an]) => `<span style="border:1px solid var(--line);border-radius:14px;padding:1px 4px 1px 9px;font-size:.82em">${an ? `<small class="muted">${esc2(an)}</small> ` : ""}${esc2(nm)}${bonos[u] ? ` <b>★${bonos[u]}</b>` : ""} <button class="btn ghost" data-bonus="${u}" title="+1 por argumentar bien" style="padding:0 6px;min-height:0;font-size:.9em">+1</button></span>`).join("")}</div>`).join("");
   return `<div class="stack" style="gap:2px;margin-top:8px"><h3 style="font-size:.9em">Quién eligió cada opción</h3>${rows}<p class="muted" style="font-size:.75em;margin:2px 0 0">+1 = argumentó bien (suma al ranking).</p></div>`;
 }
 function pickHTML(v, best) {
   if (!pick) return "";
-  return `<p style="margin:6px 0 0"><b>Pedir opinión a:</b> ${esc2(pick.maj)} (mayoría)${pick.min ? " y " + esc2(pick.min) + " (votó distinto)" : ""}.</p>`;
+  return `<p style="margin:6px 0 0"><b>Pedir opinión a:</b> ${esc2(pick.maj)} (${pick.majTag || "mayoría"})${pick.min ? " y " + esc2(pick.min) + " (" + (pick.minTag || "votó distinto") + ")" : ""}.</p>`;
 }
 function doPick() {
   const g = {}; Object.values(votes || {}).forEach(x => { if (x.op) (g[x.op] = g[x.op] || []).push(x.nombre); });
   const ks = Object.keys(g).sort((a, b) => g[b].length - g[a].length); if (!ks.length) return;
   const r = arr => arr[Math.floor(Math.random() * arr.length)];
   const rest = ks.slice(1).flatMap(k => g[k]);
+  if (RES()) { // residentes: discusión escalonada, primero un R1 de la mayoría y luego un R2/R3 que votó distinto
+    const all = Object.values(votes || {}).filter(x => x.op), top = ks[0];
+    const yr = (x, ys) => ys.includes(x.anio);
+    const r1 = all.filter(x => x.op === top && yr(x, ["R1"])), r1any = all.filter(x => yr(x, ["R1"]));
+    const first = r1.length ? r(r1) : r1any.length ? r(r1any) : r(all.filter(x => x.op === top));
+    const r23 = all.filter(x => x.op !== first.op && yr(x, ["R2", "R3"])), r23any = all.filter(x => yr(x, ["R2", "R3"]) && x !== first);
+    const second = r23.length ? r(r23) : r23any.length ? r(r23any) : null;
+    pick = { maj: first.nombre, majTag: (first.anio || "") + (first.op === top ? ", mayoría" : ""), min: second ? second.nombre : "", minTag: second ? (second.anio || "") + (second.op !== first.op ? ", votó distinto" : ", mismo voto") : "" };
+    return;
+  }
   pick = { maj: r(g[ks[0]]), min: rest.length ? r(rest) : "" };
 }
 async function loadRank() {
@@ -125,8 +136,8 @@ function paintCover() {
   if (err) { el.innerHTML = `<p class="muted" style="font-size:.75em">${A().esc(err)}</p>`; return; }
   if (!ready) { el.innerHTML = `<p class="muted" style="font-size:.75em">Conectando respuestas por celular…</p>`; return; }
   if (!code) { el.innerHTML = `<button class="btn primary" id="lvStart">Activar respuestas por celular</button>`; return; }
-  if (ses && ses.cerrada) { el.innerHTML = `<div class="stack" style="border-top:1px solid var(--line);padding-top:12px"><h3>Sesión finalizada</h3><p class="muted">El código ${code} ya no se puede usar. Cada rotación necesita su propio código.</p><div><button class="btn primary" id="lvNew">Nueva sesión con código nuevo</button> <button class="btn" id="lvPodium">Ver podio</button></div></div>`; return; }
-  const url = STUDENT_URL + "?c=" + code + (/intern/i.test(A().T.voters || "") ? "&y=Interno" : "");
+  if (ses && ses.cerrada) { el.innerHTML = `<div class="stack" style="border-top:1px solid var(--line);padding-top:12px"><h3>Sesión finalizada</h3><p class="muted">El código ${code} ya no se puede usar. Cada sesión necesita su propio código.</p><div><button class="btn primary" id="lvNew">Nueva sesión con código nuevo</button> <button class="btn" id="lvPodium">Ver podio</button></div></div>`; return; }
+  const url = STUDENT_URL + "?c=" + code + (/intern/i.test(A().T.voters || "") ? "&y=Interno" : /residen/i.test(A().T.voters || "") ? "&y=res" : "");
   el.innerHTML = `<div class="stack" style="border-top:1px solid var(--line);padding-top:12px">
     <h3>Respuestas por celular</h3>
     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
