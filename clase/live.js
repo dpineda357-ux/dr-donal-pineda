@@ -252,5 +252,5 @@ document.addEventListener("click", e => {
   if (b.id === "lvPodiumX") { podium = false; renderPodium(); }
   if (b.dataset.bonus && code) { const u = b.dataset.bonus, cur = (ses && ses.bonos && ses.bonos[u]) || 0; update(ref(db, "sesiones/" + code), { ["bonos/" + u]: cur + 1 }); }
 });
-window.LIVE = { mount: () => paint() };
+window.LIVE = { mount: () => paint(), top: () => { const c = tally(votes); if (!c.n) return null; const ks = ["A","B","C","D"]; let best = null; ks.forEach(k => { if (best === null || c.c[k] > c.c[best]) best = k; }); return best; } };
 paint();
