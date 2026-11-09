@@ -13,6 +13,7 @@ let rankData = null, pick = null, podium = false, autoKey = null, offset = 0, cl
 const VOTE_MS = 15000;
 const VER = new URL(import.meta.url).searchParams.get("v") || "?";
 let code = null, ses = null, votes = {}, unsubSes = null, unsubVotes = null, votesKey = null;
+let rosterP = {}, rosterV = {}, unsubP = null, unsubV = null; // quiénes están en la sesión: presentes (entraron) y quienes ya votaron en otra decisión
 
 const A = () => window.APP;
 const KEY = () => "live-code-" + A().T.store;
@@ -35,10 +36,18 @@ function attach(c) {
     if (!ses || ses.owner !== uid) { forget(); }
     paint();
   });
+  if (unsubP) unsubP(); if (unsubV) unsubV();
+  rosterP = {}; rosterV = {};
+  unsubP = onValue(ref(db, "presentes/" + c), snap => { rosterP = snap.val() || {}; paint(); }, () => { rosterP = {}; });
+  unsubV = onValue(ref(db, "votos/" + c), snap => {
+    const all = snap.val() || {}, r = {};
+    Object.values(all).forEach(vs => Object.entries(vs || {}).forEach(([u, x]) => { if (x && x.nombre) r[u] = { nombre: x.nombre, anio: x.anio || "" }; }));
+    rosterV = r; paint();
+  }, () => { rosterV = {}; });
 }
 function forget() {
-  if (unsubSes) unsubSes(); if (unsubVotes) unsubVotes();
-  unsubSes = unsubVotes = null; code = ses = null; votes = {}; votesKey = null;
+  if (unsubSes) unsubSes(); if (unsubVotes) unsubVotes(); if (unsubP) unsubP(); if (unsubV) unsubV();
+  unsubSes = unsubVotes = unsubP = unsubV = null; code = ses = null; votes = {}; votesKey = null; rosterP = {}; rosterV = {};
   try { localStorage.removeItem(KEY()); } catch (e) {}
 }
 async function createSession() {
@@ -104,8 +113,19 @@ function lockPage() {
   try { localStorage.removeItem(KEY()); localStorage.removeItem(A().T.store); } catch (e) {}
   document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:sans-serif"><div><h2>Sesión terminada</h2><p>La página se cerró. Para usarla de nuevo, abra el enlace e ingrese la clave.</p><button onclick="location.reload()" style="font:inherit;padding:.6em 1.2em;border-radius:8px;border:1.5px solid #999;cursor:pointer;margin-top:8px">Ingresar clave</button></div></div>';
 }
+// residentes que entraron (o ya votaron en otra decisión) y todavía no votan en ésta; el ponente no cuenta
+function nonVoters() {
+  const r = Object.assign({}, rosterV, rosterP), out = [];
+  Object.entries(r).forEach(([u, x]) => { if (x && x.nombre && !(votes && votes[u]) && !isPon(x.nombre)) out.push({ u, nombre: x.nombre, anio: x.anio || "" }); });
+  return out.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+}
 let picks = { key: null, 1: null, 2: null };
 function pickWho(n) {
+  if (RES()) { // prioridad: quienes no han votado participan primero
+    const taken0 = [picks[1], picks[2]].filter(p => p && p.u).map(p => p.u);
+    const nov = nonVoters().filter(x => !taken0.includes(x.u));
+    if (nov.length) { const p = nov[Math.floor(Math.random() * nov.length)]; return { u: p.u, nombre: p.nombre, tag: "no votó", until: Date.now() + PICK_MS }; }
+  }
   const all = Object.entries(votes || {}).map(([u, x]) => ({ u, ...x })).filter(x => x.op);
   if (!all.length) return null;
   const cnt = {}; all.forEach(x => { cnt[x.op] = (cnt[x.op] || 0) + 1; });
@@ -114,25 +134,23 @@ function pickWho(n) {
   const taken = [picks[1], picks[2]].filter(p => p && p.u).map(p => p.u);
   const okName = x => !isPon(x.nombre);
   const yr = (x, ys) => ys.includes(x.anio);
-  // residentes: 1 mayoría, 2 votó distinto; internos: 1 votó distinto, 2 mayoría
-  const kind = RES() ? (n === 1 ? "may" : "dis") : (n === 1 ? "dis" : "may");
+  // sin distinguir por año: 1 votó distinto, 2 mayoría
+  const kind = n === 1 ? "dis" : "may";
   let pool, tag;
   if (kind === "may") {
     const base = all.filter(x => x.op === top && okName(x));
     const fresh = base.filter(x => !taken.includes(x.u));
-    const prefer = RES() ? fresh.filter(x => yr(x, ["R1"])) : [];
-    pool = prefer.length ? prefer : fresh.length ? fresh : base;
+    pool = fresh.length ? fresh : base;
     tag = "mayoría";
   } else {
     const diff = all.filter(x => x.op !== top && !taken.includes(x.u) && okName(x));
-    const prefer = RES() ? diff.filter(x => yr(x, ["R2", "R3"])) : [];
-    pool = prefer.length ? prefer : diff;
+    pool = diff;
     tag = "votó distinto";
     if (!pool.length) return { none: true };
   }
   if (!pool.length) return null;
   const p = r(pool);
-  return { u: p.u, nombre: p.nombre, tag: (RES() && p.anio ? p.anio + ", " : "") + tag, until: Date.now() + PICK_MS };
+  return { u: p.u, nombre: p.nombre, tag, until: Date.now() + PICK_MS };
 }
 function doPick(n) {
   const k = vkey(); if (picks.key !== k) picks = { key: k, 1: null, 2: null };
@@ -159,8 +177,18 @@ function paintBonus() {
   const bonos = (ses && ses.bonos) || {};
   [1, 2].forEach(n => { const p = picks[n], b = document.querySelector("#turn" + n + " .pkb"); if (b) b.textContent = p && p.u && bonos[p.u] ? "★" + bonos[p.u] : ""; });
 }
+function paintSin(caso) {
+  const vc = document.querySelector(".vcols"); if (!vc || !RES()) return;
+  let el = document.getElementById("lvSin");
+  const nv = ses && !ses.cerrada && ses.caso === caso ? nonVoters() : [], tot = Object.keys(Object.assign({}, rosterV, rosterP)).length;
+  if (!tot || !(ses && ses.caso === caso)) { if (el) el.remove(); return; }
+  if (!el) { el = document.createElement("div"); el.id = "lvSin"; el.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.85em"; vc.insertAdjacentElement("afterend", el); }
+  const MAXC = 12;
+  el.innerHTML = nv.length ? `<b>Sin votar (${nv.length}):</b>` + nv.slice(0, MAXC).map(x => `<span class="vchip">${esc2(x.nombre)}</span>`).join("") + (nv.length > MAXC ? `<span class="vchip">+${nv.length - MAXC} más</span>` : "") + `<span class="muted">tienen prioridad en los sorteos</span>` : `<span class="muted">Todos los presentes votaron.</span>`;
+}
 function paintCols(S) {
   if (!(S.screen === "node" && S.phase === "voto") || !document.querySelector(".vcol")) return;
+  paintSin(vkey());
   const caso = vkey(), t = tally(votes), D = A().dec(S.node, S.step);
   const show = !!(ses && !ses.cerrada && ses.caso === caso && !ses.abierta && t.n);
   const bonos = (ses && ses.bonos) || {}, mx = Math.max(...A().KEYS.map(k => t.c[k]));
@@ -234,9 +262,9 @@ function paintPanel(S) {
     body = `<b>Votación abierta</b><span class="muted">código <b style="font-family:var(--f-mono)">${code}</b></span>
       <div style="flex:1;min-width:140px;height:16px;border-radius:8px;background:var(--line,#ddd);overflow:hidden"><div id="lvBar" style="height:100%;width:100%;background:var(--ues,#A6192E)"></div></div><b id="lvSec" style="font-family:var(--f-mono);font-size:1.6em;min-width:1.6em;text-align:right">15</b><span class="muted">s</span><span style="width:12px"></span>
       <span><b style="font-family:var(--f-mono);font-size:1.6em">${cnt}</b> respuesta${cnt === 1 ? "" : "s"}</span><button class="btn" id="lvClose">Cerrar ahora</button>`;
-  } else if (mine && tally(votes).n) {
+  } else if (mine && (tally(votes).n || (RES() && nonVoters().length))) {
     const nn = tally(votes).n;
-    body = `<b>${nn} respuesta${nn === 1 ? "" : "s"}</b><button class="btn" id="lvPick1">Sortear 1 · ${RES() ? "un R1 de la mayoría" : "votó distinto"}</button><button class="btn" id="lvPick2">Sortear 2 · ${RES() ? "un R2/R3 que votó distinto" : "de la mayoría"}</button><button class="btn" id="lvRank">Ver ranking</button>${ses.ponente ? "" : `<span class="muted" style="font-size:.8em">Sin nombre de ponente: podría salir sorteado.</span>`}${rankData ? `<div style="flex-basis:100%">${rankHTML()}</div>` : ""}`;
+    body = `<b>${nn} respuesta${nn === 1 ? "" : "s"}</b><button class="btn" id="lvPick1">Sortear 1 · ${RES() ? "un residente que votó distinto" : "votó distinto"}</button><button class="btn" id="lvPick2">Sortear 2 · ${RES() ? "un residente de la mayoría" : "de la mayoría"}</button><button class="btn" id="lvRank">Ver ranking</button>${ses.ponente ? "" : `<span class="muted" style="font-size:.8em">Sin nombre de ponente: podría salir sorteado.</span>`}${rankData ? `<div style="flex-basis:100%">${rankHTML()}</div>` : ""}`;
   } else if (mine && !ses.abierta) {
     body = `<b>Votación cerrada sin respuestas</b><span class="muted">código <b style="font-family:var(--f-mono)">${code}</b></span>`;
   } else {

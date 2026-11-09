@@ -95,6 +95,7 @@ async function join(c) {
   ls.set("rc-code", c); ls.set("rc-name", me.nombre); ls.set("rc-year", me.anio); ls.set("rc-joined", c);
   $("join").hidden = true; $("room").hidden = false;
   $("who").textContent = me.nombre + " · " + me.anio + " · código " + c;
+  try { await set(ref(db, "presentes/" + c + "/" + uid), { nombre: me.nombre, anio: me.anio, t: serverTimestamp() }); } catch (e) {}
   unsub.push(onValue(ref(db, "sesiones/" + c), snap => { ses = snap.val(); paint(); }));
   return true;
 }
