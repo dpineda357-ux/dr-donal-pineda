@@ -121,7 +121,7 @@ function nonVoters() {
 }
 let picks = { key: null, 1: null, 2: null };
 function pickWho(n) {
-  if (RES()) { // prioridad: quienes no han votado participan primero
+  { // prioridad: quienes no han votado participan primero (residentes e internos)
     const taken0 = [picks[1], picks[2]].filter(p => p && p.u).map(p => p.u);
     const nov = nonVoters().filter(x => !taken0.includes(x.u));
     if (nov.length) { const p = nov[Math.floor(Math.random() * nov.length)]; return { u: p.u, nombre: p.nombre, tag: "no votó", until: Date.now() + PICK_MS }; }
@@ -178,7 +178,7 @@ function paintBonus() {
   [1, 2].forEach(n => { const p = picks[n], b = document.querySelector("#turn" + n + " .pkb"); if (b) b.textContent = p && p.u && bonos[p.u] ? "★" + bonos[p.u] : ""; });
 }
 function paintSin(caso) {
-  const vc = document.querySelector(".vcols"); if (!vc || !RES()) return;
+  const vc = document.querySelector(".vcols"); if (!vc) return;
   let el = document.getElementById("lvSin");
   const nv = ses && !ses.cerrada && ses.caso === caso ? nonVoters() : [], tot = Object.keys(Object.assign({}, rosterV, rosterP)).length;
   if (!tot || !(ses && ses.caso === caso)) { if (el) el.remove(); return; }
@@ -262,7 +262,7 @@ function paintPanel(S) {
     body = `<b>Votación abierta</b><span class="muted">código <b style="font-family:var(--f-mono)">${code}</b></span>
       <div style="flex:1;min-width:140px;height:16px;border-radius:8px;background:var(--line,#ddd);overflow:hidden"><div id="lvBar" style="height:100%;width:100%;background:var(--ues,#A6192E)"></div></div><b id="lvSec" style="font-family:var(--f-mono);font-size:1.6em;min-width:1.6em;text-align:right">15</b><span class="muted">s</span><span style="width:12px"></span>
       <span><b style="font-family:var(--f-mono);font-size:1.6em">${cnt}</b> respuesta${cnt === 1 ? "" : "s"}</span><button class="btn" id="lvClose">Cerrar ahora</button>`;
-  } else if (mine && (tally(votes).n || (RES() && nonVoters().length))) {
+  } else if (mine && (tally(votes).n || nonVoters().length)) {
     const nn = tally(votes).n;
     body = `<b>${nn} respuesta${nn === 1 ? "" : "s"}</b><button class="btn" id="lvPick1">Sortear 1 · ${RES() ? "un residente que votó distinto" : "votó distinto"}</button><button class="btn" id="lvPick2">Sortear 2 · ${RES() ? "un residente de la mayoría" : "de la mayoría"}</button><button class="btn" id="lvRank">Ver ranking</button>${ses.ponente ? "" : `<span class="muted" style="font-size:.8em">Sin nombre de ponente: podría salir sorteado.</span>`}${rankData ? `<div style="flex-basis:100%">${rankHTML()}</div>` : ""}`;
   } else if (mine && !ses.abierta) {
