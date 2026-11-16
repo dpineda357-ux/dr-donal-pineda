@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Asistencia G&amp;O I</title>
+<title>Asistencia G&amp;O</title>
 <style>
   :root{--bg:#f3f1ec;--card:#fff;--ink:#13232a;--muted:#5b6770;--line:#d9d4c8;--ues:#e60012;--accent:#1f3a5f;--ok:#1f7a4d;--okbg:#e2f1e8;--bad:#b3261e;--badbg:#fbe4e2;--warn:#9a5b00;--warnbg:#fbf0dc}
   @media (prefers-color-scheme:dark){:root{--bg:#11161c;--card:#1a2129;--ink:#e8ecef;--muted:#9aa6b0;--line:#2c3640;--ues:#ff4d57;--accent:#8fb4e3;--ok:#5cc28c;--okbg:#163026;--bad:#ff8a80;--badbg:#3a1c1b;--warn:#e5a54a;--warnbg:#33270f;color-scheme:dark}}
@@ -37,7 +37,7 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">UES · Ginecología y Obstetricia I</div>
+    <div class="eyebrow" id="curso">UES · Ginecología y Obstetricia</div>
     <h1>Asistencia</h1>
     <p class="lede" id="hoy"></p>
   </header>
@@ -132,7 +132,7 @@
 </div>
 <script>
 (function(){
-  var PV="41";   // versión de esta página (debe coincidir con la del servidor que aparece al pie)
+  var PV="42";   // versión de esta página (debe coincidir con la del servidor que aparece al pie)
   var API="https://script.google.com/macros/s/AKfycbyAmmxnCAuS84RiuVRS0fw96-bOUIm301kilEp0vFC_nvfDFKPlIQOyJVclb6_XHrA4yQ/exec";    // FASE 2: en la copia que se publica fuera de Google, aquí va la dirección …/exec de la aplicación web
   function $(id){return document.getElementById(id)}
   function ck(k,v){try{if(v===undefined){var m=document.cookie.match(new RegExp("(?:^|; )"+k+"=([^;]*)"));return m?decodeURIComponent(m[1]):null}document.cookie=k+"="+encodeURIComponent(v)+"; max-age=31536000; path=/; SameSite=None; Secure"}catch(e){return null}}
@@ -250,7 +250,7 @@
     show("reint",false);show("carga",true);$("carga").textContent="Cargando…";
     llamar("quienSoy",[token],function(r){
       show("carga",false);modo=r.modo;plazo=Number(r.plazo)||0;
-      $("pie").textContent="Página v"+PV+(r.v?" · servidor v"+r.v:"");
+      $("pie").textContent="Página v"+PV+(r.v?" · servidor v"+r.v:"");if(r.curso)$("curso").textContent="UES · "+r.curso;
       if(plazo)$("ayint").textContent="Elige qué pasó y toca «Notificar problema». Solo puedes enviar una solicitud por clase: con una basta. Hazlo dentro de los "+plazo+" minutos del registro de la clase; después ya no se puede revisar.";
       if(r.modo==="ok"){if(r.token){token=r.token;ls("asis-token",token)}return listo(r.nombre)}
       if(r.modo==="verificar"){token="";ls("asis-token","");show("ver",true);return}
