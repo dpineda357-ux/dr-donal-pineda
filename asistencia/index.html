@@ -132,8 +132,8 @@
 </div>
 <script>
 (function(){
-  var PV="40";   // versión de esta página (debe coincidir con la del servidor que aparece al pie)
-  var API="https://script.google.com/macros/s/AKfycbyAmmxnCAuS84RiuVRS0fw96-bOUIm301kilEp0vFC_nvfDFKPlIQOyJVclb6_XHrA4yQ/exec";    // FASE 2: en la copia que se publica fuera de Google, aquí va la dirección …/exec de la aplicación web
+  var PV="41";   // versión de esta página (debe coincidir con la del servidor que aparece al pie)
+  var API="https://script.google.com/macros/s/AKfycbykkOSNNRQauAX8cCy0BsrDlJ53UCFjWqc49qodEcyrow_O3pTVlJ0MIWaP3im6lOz0/exec";    // FASE 2: en la copia que se publica fuera de Google, aquí va la dirección …/exec de la aplicación web
   function $(id){return document.getElementById(id)}
   function ck(k,v){try{if(v===undefined){var m=document.cookie.match(new RegExp("(?:^|; )"+k+"=([^;]*)"));return m?decodeURIComponent(m[1]):null}document.cookie=k+"="+encodeURIComponent(v)+"; max-age=31536000; path=/; SameSite=None; Secure"}catch(e){return null}}
   function ls(k,v){if(v===undefined){var r=null;try{r=localStorage.getItem(k)}catch(e){}if(!r){r=ck(k);if(r)try{localStorage.setItem(k,r)}catch(e){}}try{return r?JSON.parse(r):null}catch(e){return null}}try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}ck(k,JSON.stringify(v));return null}
@@ -146,6 +146,7 @@
 
   // ---- Conexión con el servidor (v40): límite de tiempo, reintentos y dos vías (dentro de Apps Script o por fetch desde una página propia) ----
   var GS=!!(window.google&&google.script&&google.script.run);
+  var G="";try{G=(new URLSearchParams(location.search).get("g")||"").trim().slice(0,24)}catch(e){}   // grupo (rotación) de este enlace
   function una(fn,args,ok,ko,ms){
     var fin=false,ctl=null,t=setTimeout(function(){if(fin)return;fin=true;try{if(ctl)ctl.abort()}catch(e){}ko({lento:true})},ms);
     function bien(r){if(fin)return;fin=true;clearTimeout(t);ok(r)}
@@ -154,7 +155,7 @@
       if(GS){var run=google.script.run.withSuccessHandler(bien).withFailureHandler(mal);run[fn].apply(run,args)}
       else if(API){
         try{ctl=new AbortController()}catch(e){ctl=null}
-        fetch(API,{method:"POST",redirect:"follow",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn:fn,args:args}),signal:ctl?ctl.signal:undefined})
+        fetch(API,{method:"POST",redirect:"follow",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn:fn,args:args,g:G}),signal:ctl?ctl.signal:undefined})
           .then(function(x){if(!x.ok)throw new Error("red");return x.json()})
           .then(function(j){if(j&&j.ok)bien(j.r);else mal({message:"srv:"+(j&&j.error||"Respuesta inesperada")})})
           .catch(function(e){mal({message:/^srv:/.test(String(e&&e.message))?e.message:"red"})});
@@ -255,7 +256,7 @@
       if(r.modo==="verificar"){token="";ls("asis-token","");show("ver",true);return}
       if(r.modo==="error"){show("form",true);err(r.msg);$("reg").disabled=true;return}
       show("form",true);show("carw",true);var c=ls("asis-car");if(c){$("car").value=c;$("car").readOnly=true}vigilar();
-    },function(e){$("carga").textContent="No se pudo cargar: "+porque(e)+". Revisa tu internet y toca «Reintentar».";show("reint",true)},
+    },function(e){if(/^srv:/.test(e.msg||"")){$("carga").textContent=porque(e);return}$("carga").textContent="No se pudo cargar: "+porque(e)+". Revisa tu internet y toca «Reintentar».";show("reint",true)},
     {n:3,ms:20000,alReintentar:function(i){$("carga").textContent="Conectando… (intento "+i+" de 3)"}});
   }
   $("reint").addEventListener("click",inicio);

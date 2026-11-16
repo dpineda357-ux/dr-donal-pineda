@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asistencia G&amp;O I</title>
+<style>
+  :root{--bg:#f3f1ec;--card:#fff;--ink:#13232a;--muted:#5b6770;--line:#d9d4c8;--ues:#e60012;--accent:#1f3a5f;--ok:#1f7a4d;--okbg:#e2f1e8;--bad:#b3261e;--badbg:#fbe4e2;--warn:#9a5b00;--warnbg:#fbf0dc}
+  @media (prefers-color-scheme:dark){:root{--bg:#11161c;--card:#1a2129;--ink:#e8ecef;--muted:#9aa6b0;--line:#2c3640;--ues:#ff4d57;--accent:#8fb4e3;--ok:#5cc28c;--okbg:#163026;--bad:#ff8a80;--badbg:#3a1c1b;--warn:#e5a54a;--warnbg:#33270f;color-scheme:dark}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:520px;margin:0 auto;padding:20px 16px 40px;display:flex;flex-direction:column;gap:14px}
+  header{border-left:4px solid var(--ues);padding-left:12px}
+  .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ues);font-weight:700}
+  h1{font-size:28px;margin:2px 0 0;line-height:1.1}
+  .lede{color:var(--muted);margin:4px 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+  label{font-weight:600;font-size:14px;display:flex;flex-direction:column;gap:6px}
+  textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%;resize:vertical}
+  input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%}
+  #cod,#otp{font-size:32px;letter-spacing:.14em;text-align:center;font-weight:700}
+  button.link{background:none;color:var(--accent);padding:4px;font-weight:600;text-decoration:underline}
+  .hint{font-size:13px;color:var(--muted);font-weight:400;margin:0}
+  button{font:inherit;font-weight:700;border:0;border-radius:8px;padding:14px 16px;cursor:pointer;background:var(--accent);color:var(--card)}
+  button:disabled{opacity:.6}
+  .msg{border-radius:8px;padding:10px 12px}
+  .bad{background:var(--badbg);color:var(--bad)} .ok{background:var(--okbg);color:var(--ok)} .warn{background:var(--warnbg);color:var(--warn)}
+  .big{font-size:24px;font-weight:800}
+  .pasos{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+  .op{flex-direction:row;align-items:flex-start;gap:10px;font-weight:500;font-size:15px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg);cursor:pointer}
+  .op input{width:auto;margin-top:3px;flex:none}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">UES · Ginecología y Obstetricia I</div>
+    <h1>Asistencia</h1>
+    <p class="lede" id="hoy"></p>
+  </header>
+
+  <!-- Verificar este celular con el correo -->
+  <section class="card" id="ver" hidden>
+    <div class="big">Verifica este celular</div>
+    <p class="hint">Escribe tu carnet. Si este celular ya estaba verificado, entras de inmediato. Si no, te enviaremos un código a tu correo de Google (Gmail) para comprobar que eres tú.</p>
+    <label for="vcar">Tu carnet
+      <input id="vcar" maxlength="7" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="AB12345">
+    </label>
+    <label for="vcor" id="vcorw" hidden>Tu correo de Google
+      <input id="vcor" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="nombre@gmail.com">
+      <span class="hint">Escríbelo bien: quedará ligado a tu carnet para toda la asignatura. Si no tienes, crea uno en gmail.com.</span>
+    </label>
+    <button id="pedir">Continuar</button>
+    <div id="paso2" hidden style="display:flex;flex-direction:column;gap:12px">
+      <div class="msg ok" id="enviado"></div>
+      <label for="otp">Código del correo (6 números)
+        <input id="otp" inputmode="numeric" enterkeyhint="go" maxlength="6" autocomplete="one-time-code">
+      </label>
+      <button id="confirmar">Confirmar</button>
+      <p class="hint">¿No llegó? Revisa «Spam» o «Promociones». <button class="link" id="reenviar">Enviar otro</button></p>
+    </div>
+    <div id="otro" class="msg warn" hidden>
+      <b>Ya tienes otro celular (u otro navegador) verificado.</b>
+      <p style="margin:6px 0 10px">La asistencia solo vale desde uno. Si cambias a este, el anterior deja de servir. Solo puedes cambiar <b>una vez</b> en toda la asignatura.</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button id="quedar" type="button">Seguir con el anterior</button>
+        <button id="cambiar" type="button" style="background:var(--warn)">Cambiar a este celular</button>
+      </div>
+    </div>
+    <div id="verr" class="msg bad" hidden></div>
+    <p class="hint">¿No puedes verificarte? <button class="link" id="ayab2" type="button">Notificar un problema</button></p>
+  </section>
+
+  <section class="card" id="form" hidden>
+    <div id="quien" class="msg ok" hidden></div>
+    <label for="car" id="carw" hidden>Tu carnet
+      <input id="car" maxlength="7" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="AB12345">
+    </label>
+    <label for="cod">Código que dio el docente
+      <input id="cod" inputmode="numeric" enterkeyhint="go" maxlength="5" autocomplete="off" placeholder="00-00">
+      <span class="hint">Son 4 números.</span>
+    </label>
+    <div id="gps" class="msg warn">Cuando el celular pida la ubicación, toca «Permitir»: la asistencia solo vale desde el aula. Abre este enlace en Safari o Chrome, no dentro de WhatsApp.</div>
+    <div id="err" class="msg bad" hidden></div>
+    <div id="ayuda" class="msg warn" hidden></div>
+    <button id="reg">Registrar asistencia</button>
+    <p class="hint">¿Dudas con la ubicación? <button class="link" id="probar" type="button">Probar mi ubicación</button></p>
+    <p class="hint">¿Algo no te deja registrarte? <button class="link" id="ayab" type="button">Notificar un problema</button></p>
+  </section>
+
+  <!-- Notificar un problema -->
+  <section class="card" id="ayp" hidden>
+    <div class="big" style="font-size:20px">Notificar un problema</div>
+    <p class="hint" id="ayint">Elige qué pasó y toca «Notificar problema». Solo puedes enviar una solicitud por clase: con una basta. Hazlo durante el registro de la clase; después ya no se puede revisar.</p>
+    <fieldset id="aytipo" style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;min-width:0">
+      <legend style="font-weight:700;font-size:14px;padding:0 0 6px">¿Qué pasó?</legend>
+      <label class="op"><input type="radio" name="ayt" value="gps" checked><span>La ubicación no funciona o sale aproximada</span></label>
+      <label class="op"><input type="radio" name="ayt" value="codigo"><span>El código de la clase no me sirve</span></label>
+      <label class="op"><input type="radio" name="ayt" value="red"><span>No tengo internet o la página no carga</span></label>
+      <label class="op"><input type="radio" name="ayt" value="celular"><span>Me dice que este celular ya registró a otro estudiante</span></label>
+      <label class="op"><input type="radio" name="ayt" value="verif"><span>No puedo verificar mi celular</span></label>
+      <label class="op"><input type="radio" name="ayt" value="cambio"><span>Me dice que ya usé mi único cambio de celular</span></label>
+      <label class="op"><input type="radio" name="ayt" value="correo"><span>No me llega el código a mi correo</span></label>
+      <label class="op"><input type="radio" name="ayt" value="otro"><span>Otro problema</span></label>
+    </fieldset>
+    <label for="ayses" id="aysesw" hidden>¿De qué clase es tu solicitud?
+      <select id="ayses"></select>
+    </label>
+    <label for="aydet" id="aydetw" hidden>Cuéntanos qué pasó
+      <textarea id="aydet" rows="3" maxlength="300" placeholder="Escribe aquí tu problema con pocas palabras"></textarea>
+      <span class="hint">Es obligatorio en «Otro problema».</span>
+    </label>
+    <button id="aygo" type="button">Notificar problema</button>
+    <div id="ayok" class="msg ok" style="font-weight:700" hidden></div>
+    <div id="aymsg" class="msg bad" hidden></div>
+  </section>
+
+  <section class="card" id="done" hidden>
+    <div class="big ok msg" id="dt"></div>
+    <p class="hint" id="dd"></p>
+    <p class="hint">Para la próxima clase abre la página en este mismo celular y navegador (guárdala en la pantalla de inicio). Así no te vuelve a pedir el código del correo.</p>
+    <button id="otra">Registrar otra sesión</button>
+  </section>
+
+  <div id="carga" class="msg">Cargando…</div>
+  <button id="reint" type="button" hidden>Reintentar</button>
+  <p class="hint">Este celular queda ligado a ti y no sirve para registrar a otra persona. Registrar a un compañero ausente se trata como falta de ambos.</p>
+  <p class="hint" id="pie" style="text-align:center;opacity:.75"></p>
+</div>
+<script>
+(function(){
+  var PV="41";   // versión de esta página (debe coincidir con la del servidor que aparece al pie)
+  var API="https://script.google.com/macros/s/AKfycbyAmmxnCAuS84RiuVRS0fw96-bOUIm301kilEp0vFC_nvfDFKPlIQOyJVclb6_XHrA4yQ/exec";    // FASE 2: en la copia que se publica fuera de Google, aquí va la dirección …/exec de la aplicación web
+  function $(id){return document.getElementById(id)}
+  function ck(k,v){try{if(v===undefined){var m=document.cookie.match(new RegExp("(?:^|; )"+k+"=([^;]*)"));return m?decodeURIComponent(m[1]):null}document.cookie=k+"="+encodeURIComponent(v)+"; max-age=31536000; path=/; SameSite=None; Secure"}catch(e){return null}}
+  function ls(k,v){if(v===undefined){var r=null;try{r=localStorage.getItem(k)}catch(e){}if(!r){r=ck(k);if(r)try{localStorage.setItem(k,r)}catch(e){}}try{return r?JSON.parse(r):null}catch(e){return null}}try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}ck(k,JSON.stringify(v));return null}
+  function show(id,on){$(id).hidden=!on}
+  function err(t){$("err").textContent=t||"";$("err").hidden=!t}
+  function verr(t){$("verr").textContent=t||"";$("verr").hidden=!t}
+  function busy(id,b,t,def){$(id).disabled=b;$(id).textContent=b?t:def}
+  $("hoy").textContent=new Date().toLocaleDateString("es-SV",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  $("pie").textContent="Página v"+PV;
+
+  // ---- Conexión con el servidor (v40): límite de tiempo, reintentos y dos vías (dentro de Apps Script o por fetch desde una página propia) ----
+  var GS=!!(window.google&&google.script&&google.script.run);
+  var G="";try{G=(new URLSearchParams(location.search).get("g")||"").trim().slice(0,24)}catch(e){}   // grupo (rotación) de este enlace
+  function una(fn,args,ok,ko,ms){
+    var fin=false,ctl=null,t=setTimeout(function(){if(fin)return;fin=true;try{if(ctl)ctl.abort()}catch(e){}ko({lento:true})},ms);
+    function bien(r){if(fin)return;fin=true;clearTimeout(t);ok(r)}
+    function mal(e){if(fin)return;fin=true;clearTimeout(t);ko({msg:String(e&&e.message||e||"")})}
+    try{
+      if(GS){var run=google.script.run.withSuccessHandler(bien).withFailureHandler(mal);run[fn].apply(run,args)}
+      else if(API){
+        try{ctl=new AbortController()}catch(e){ctl=null}
+        fetch(API,{method:"POST",redirect:"follow",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn:fn,args:args,g:G}),signal:ctl?ctl.signal:undefined})
+          .then(function(x){if(!x.ok)throw new Error("red");return x.json()})
+          .then(function(j){if(j&&j.ok)bien(j.r);else mal({message:"srv:"+(j&&j.error||"Respuesta inesperada")})})
+          .catch(function(e){mal({message:/^srv:/.test(String(e&&e.message))?e.message:"red"})});
+      }else mal({message:"srv:La página no está conectada al servidor. Avisa al docente."});
+    }catch(e){mal(e)}
+  }
+  /** opt: {n: intentos (1 = sin reintento), ms: límite por intento, alReintentar(i)} */
+  function llamar(fn,args,ok,ko,opt){
+    opt=opt||{};var n=opt.n||1,ms=opt.ms||25000,i=0;
+    (function ir(){i++;una(fn,args,function(r){ok(r,i)},function(e){
+      if(i<n&&!/^srv:/.test(e.msg||"")){if(opt.alReintentar)opt.alReintentar(i+1);setTimeout(ir,e.lento?300:1200*i)}else ko(e)},ms)})();
+  }
+  function porque(e){
+    if(e&&e.lento)return "la conexión tardó demasiado";
+    if(e&&/^srv:/.test(e.msg||""))return e.msg.slice(4);
+    if(navigator.onLine===false)return "no hay internet";
+    return GS&&e&&e.msg&&e.msg!=="red"?e.msg:"falló la conexión";
+  }
+
+  var dev=ls("asis-dev");if(!dev){dev="d-"+Math.random().toString(36).slice(2,10);ls("asis-dev",dev)}
+  // Huella del equipo: sirve para notar el mismo celular en modo incógnito u otro navegador.
+  function h(s){var a=0x811c9dc5;for(var i=0;i<s.length;i++){a^=s.charCodeAt(i);a=Math.imul(a,16777619)}return (a>>>0).toString(36)}
+  var n=navigator,sc=screen,hu="h-"+h([n.userAgent,n.language,n.platform,n.hardwareConcurrency,n.deviceMemory,n.maxTouchPoints,sc.width+"x"+sc.height+"x"+(window.devicePixelRatio||1),Intl.DateTimeFormat().resolvedOptions().timeZone].join("|"));
+  var token=ls("asis-token")||"",modo="";
+  var ua=n.userAgent,IOS=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&n.maxTouchPoints>1);
+  var NAV=/WhatsApp|FBAN|FBAV|Instagram|Line\//.test(ua)?"app":IOS?(/CriOS/.test(ua)?"ios-chrome":/FxiOS|EdgiOS|OPiOS/.test(ua)?"ios-otro":"ios-safari"):/Android/.test(ua)?"android":"otro";
+  var APP=["Estás dentro de WhatsApp u otra app: ahí la ubicación casi nunca funciona.","Toca ⋯ (o el ícono de compartir) y elige «Abrir en Safari» o «Abrir en Chrome».","Guarda ese enlace en la pantalla de inicio para las próximas clases."];
+  var PASOS={
+    permiso:{
+      "ios-safari":["Abre Ajustes → Privacidad y seguridad → Localización y actívala.","Ahí mismo entra a «Sitios web de Safari»: permite «mientras se usa la app» y activa «Ubicación exacta».","Vuelve aquí, toca «aA» junto a la dirección → Configuración del sitio web → Ubicación → Permitir, y recarga la página."],
+      "ios-chrome":["Abre Ajustes → Privacidad y seguridad → Localización y actívala.","Ahí mismo entra a «Chrome»: permite «mientras se usa la app» y activa «Ubicación exacta».","Vuelve aquí, recarga la página y toca «Permitir» cuando lo pida."],
+      "ios-otro":["Abre Ajustes → Privacidad y seguridad → Localización y actívala.","Entra al nombre de tu navegador: permite «mientras se usa la app» y activa «Ubicación exacta». Si no funciona, usa Safari o Chrome.","Vuelve aquí y recarga la página."],
+      "android":["Baja la barra de arriba y activa «Ubicación».","En Chrome toca el ícono junto a la dirección (candado o ajustes) → Permisos → Ubicación → Permitir.","Recarga la página y vuelve a intentarlo."],
+      "app":APP,
+      "otro":["Activa la ubicación del celular.","Permite la ubicación para esta página en el navegador y recárgala."]
+    },
+    precisa:{
+      "ios-safari":["Abre Ajustes → Privacidad y seguridad → Localización → «Sitios web de Safari».","Activa «Ubicación exacta» (y el permiso «mientras se usa la app»).","Vuelve aquí y registra otra vez."],
+      "ios-chrome":["Abre Ajustes → Privacidad y seguridad → Localización → «Chrome».","Activa «Ubicación exacta» (y el permiso «mientras se usa la app»).","Vuelve aquí y registra otra vez."],
+      "ios-otro":["Abre Ajustes → Privacidad y seguridad → Localización → tu navegador.","Activa «Ubicación exacta». Si no aparece, usa Safari o Chrome.","Vuelve aquí y registra otra vez."],
+      "android":["Abre Ajustes → Ubicación → Servicios de ubicación → «Precisión de la ubicación de Google» y actívala.","En Chrome: ícono junto a la dirección → Permisos → Ubicación: que sea «exacta», no «aproximada».","Vuelve aquí y registra otra vez."],
+      "app":APP,
+      "otro":["Activa la ubicación exacta (precisa) del celular para este navegador y vuelve a intentarlo."]
+    }
+  };
+  function ayuda(tipo,titulo,bien){
+    var a=$("ayuda");a.className="msg "+(bien?"ok":"warn");a.textContent="";
+    var b=document.createElement("b");b.textContent=titulo;a.appendChild(b);
+    if(tipo){var ol=document.createElement("ol");ol.className="pasos";
+      (PASOS[tipo][NAV]||PASOS[tipo].otro).forEach(function(t){var li=document.createElement("li");li.textContent=t;ol.appendChild(li)});a.appendChild(ol)}
+    a.hidden=false;
+  }
+
+  // ---- Ubicación (v40): se empieza a buscar al abrir la página y se guarda la mejor lectura; al tocar «Registrar» casi siempre ya está lista ----
+  var mejor=null,wid=null,gerr=0;
+  function estadoGps(){
+    var g=$("gps");
+    if(mejor&&Date.now()-mejor.t<60000&&mejor.p.coords.accuracy<=200){g.className="msg ok";g.textContent="✓ Ubicación lista. Cuando el docente dé el código, escríbelo y registra."}
+    else if(mejor&&Date.now()-mejor.t<60000){g.className="msg warn";g.textContent="Tu celular está dando una ubicación aproximada. Toca «Probar mi ubicación» para ver cómo activar la exacta."}
+    else if(gerr===1){g.className="msg warn";g.textContent="La ubicación está bloqueada en este celular. Toca «Probar mi ubicación» para ver cómo permitirla."}
+  }
+  function vigilar(){
+    if(wid!==null||!navigator.geolocation)return;
+    try{wid=navigator.geolocation.watchPosition(function(p){
+      gerr=0;if(!mejor||p.coords.accuracy<=mejor.p.coords.accuracy||Date.now()-mejor.t>20000)mejor={p:p,t:Date.now()};else if(p.coords.accuracy<=mejor.p.coords.accuracy*1.5)mejor.t=Date.now();
+      estadoGps();
+    },function(e){gerr=e&&e.code||2;if(gerr===1){try{navigator.geolocation.clearWatch(wid)}catch(x){}wid=null}estadoGps()},{enableHighAccuracy:true,maximumAge:0,timeout:30000})}catch(e){wid=null}
+  }
+  function parar(){if(wid!==null){try{navigator.geolocation.clearWatch(wid)}catch(e){}wid=null}}
+  function fresca(){return mejor&&Date.now()-mejor.t<45000?mejor.p:null}
+  /** Da la mejor lectura: al instante si ya es buena; si no, espera hasta 12 s a que mejore. */
+  function ubicar(ok,fallo){
+    if(!navigator.geolocation)return fallo(0);
+    gerr=0;vigilar();
+    var t0=Date.now(),iv=setInterval(function(){
+      var p=fresca(),ms=Date.now()-t0;
+      if(gerr===1){clearInterval(iv);return fallo(1)}
+      if(p&&(p.coords.accuracy<=60||(ms>4000&&p.coords.accuracy<=150)||ms>12000)){clearInterval(iv);return ok(p)}
+      if(ms>12000){clearInterval(iv);
+        navigator.geolocation.getCurrentPosition(function(q){mejor={p:q,t:Date.now()};ok(q)},function(e){fallo(e&&e.code||gerr||2)},{enableHighAccuracy:false,timeout:8000,maximumAge:60000});
+      }
+    },250);
+  }
+  var MOTIVO={0:"El navegador no da ubicación",1:"Permiso de ubicación negado",2:"Ubicación no disponible",3:"La ubicación tardó demasiado"};
+  function avisar(code){llamar("problemaGps",[{token:token,carnet:$("car").value,codigo:$("cod").value,motivo:MOTIVO[code]||MOTIVO[2],nav:NAV}],function(){},function(){})}
+  function upper(el){el.addEventListener("input",function(){this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,"")})}
+  upper($("vcar"));upper($("car"));
+
+  function listo(nombre){show("ver",false);show("form",true);$("quien").textContent="Hola, "+nombre;show("quien",true);vigilar()}
+  var plazo=0;
+  function inicio(){
+    show("reint",false);show("carga",true);$("carga").textContent="Cargando…";
+    llamar("quienSoy",[token],function(r){
+      show("carga",false);modo=r.modo;plazo=Number(r.plazo)||0;
+      $("pie").textContent="Página v"+PV+(r.v?" · servidor v"+r.v:"");
+      if(plazo)$("ayint").textContent="Elige qué pasó y toca «Notificar problema». Solo puedes enviar una solicitud por clase: con una basta. Hazlo dentro de los "+plazo+" minutos del registro de la clase; después ya no se puede revisar.";
+      if(r.modo==="ok"){if(r.token){token=r.token;ls("asis-token",token)}return listo(r.nombre)}
+      if(r.modo==="verificar"){token="";ls("asis-token","");show("ver",true);return}
+      if(r.modo==="error"){show("form",true);err(r.msg);$("reg").disabled=true;return}
+      show("form",true);show("carw",true);var c=ls("asis-car");if(c){$("car").value=c;$("car").readOnly=true}vigilar();
+    },function(e){if(/^srv:/.test(e.msg||"")){$("carga").textContent=porque(e);return}$("carga").textContent="No se pudo cargar: "+porque(e)+". Revisa tu internet y toca «Reintentar».";show("reint",true)},
+    {n:3,ms:20000,alReintentar:function(i){$("carga").textContent="Conectando… (intento "+i+" de 3)"}});
+  }
+  $("reint").addEventListener("click",inicio);
+  inicio();
+
+  function pedir(cambiar){
+    verr("");show("otro",false);var c=$("vcar").value;
+    if(!/^[A-Z]{2}\d{5}$/.test(c))return verr("El carnet son 2 letras y 5 números, por ejemplo AB12345.");
+    busy("pedir",true,"Un momento…","Continuar");
+    llamar("pedirCodigo",[c,$("vcor").value,token,hu,cambiar===true,NAV],function(r){
+      busy("pedir",false,"","Continuar");
+      if(r.ok&&r.directo){token=r.token;ls("asis-token",token);return listo(r.nombre)}
+      if(!r.ok){if(r.otroCelular){show("otro",true);return}if(r.pideCorreo){show("vcorw",true);$("vcor").focus()}verr(r.msg||"");return}
+      $("enviado").textContent="Te enviamos un código a "+r.correo+(r.anclado?", el correo que ligaste a tu carnet.":".");
+      show("paso2",true);show("vcorw",false);$("vcar").readOnly=true;$("otp").focus();
+    },function(e){
+      busy("pedir",false,"","Continuar");
+      // No se repite sola (mandaría dos códigos). Si tardó, puede que el correo sí haya salido.
+      if(e.lento){$("enviado").textContent="La conexión tardó y no supimos si el código salió. Revisa tu correo: si llegó, escríbelo aquí. Si no llegó, toca «Enviar otro».";show("paso2",true)}
+      else verr("No se pudo enviar: "+porque(e)+". Vuelve a tocar «Continuar».");
+    },{n:1,ms:30000});
+  }
+  var cambio=false;
+  $("pedir").addEventListener("click",function(){pedir(false)});
+  $("reenviar").addEventListener("click",function(){pedir(cambio)});
+  $("quedar").addEventListener("click",function(){show("otro",false);verr("Abre esta página en el celular y el navegador que verificaste antes, y registra desde ahí.")});
+  $("cambiar").addEventListener("click",function(){cambio=true;pedir(true)});
+  $("confirmar").addEventListener("click",function(){
+    verr("");busy("confirmar",true,"Comprobando…","Confirmar");
+    llamar("verificarCodigo",[$("vcar").value,$("otp").value,hu],function(r){
+      busy("confirmar",false,"","Confirmar");
+      if(!r.ok)return verr(r.msg);
+      token=r.token;ls("asis-token",token);listo(r.nombre);
+    },function(e){busy("confirmar",false,"","Confirmar");verr("No se pudo comprobar: "+porque(e)+". Vuelve a tocar «Confirmar».")},
+    {n:2,ms:25000,alReintentar:function(){$("confirmar").textContent="Reintentando…"}});
+  });
+
+  function enviar(pos,sinGps){
+    busy("reg",true,"Registrando…","Registrar asistencia");
+    var d={token:token,carnet:$("car").value,codigo:$("cod").value,dispositivo:dev,huella:hu,
+      lat:pos?pos.coords.latitude:null,lon:pos?pos.coords.longitude:null,acc:pos?pos.coords.accuracy:null,nav:NAV};
+    llamar("registrar",[d],function(r,intento){
+      busy("reg",false,"","Registrar asistencia");
+      if(!r.ok){
+        if(r.linea){err("");ayuda("",r.msg,true);return}
+        if(r.verificar){token="";ls("asis-token","");show("form",false);show("ver",true);parar()}
+        err(r.msg);if(r.ayuda)ayuda(r.ayuda,"Cómo arreglarlo:");
+        if(sinGps&&r.ayuda==="permiso")avisar(sinGps);
+        return}
+      if(modo==="carnet"){ls("asis-car",$("car").value);$("car").readOnly=true}
+      // Si hubo reintento y el servidor dice «ya estabas», el primer envío sí había llegado: es un registro normal.
+      $("dt").textContent=r.ya&&intento>1?"Asistencia registrada":r.msg;
+      $("dd").textContent=r.ya?(intento>1?"Tu registro quedó guardado. Ya puedes guardar el celular.":"No hace falta registrarte otra vez."):r.estudiante+" · "+r.sesion+" · "+r.hora+". Ya puedes guardar el celular.";
+      show("form",false);show("done",true);$("cod").value="";parar();
+    },function(e){busy("reg",false,"","Registrar asistencia");err("No se pudo registrar: "+porque(e)+". Vuelve a tocar «Registrar asistencia»; si sigue igual, usa «Notificar un problema».")},
+    {n:3,ms:25000,alReintentar:function(i){$("reg").textContent="Reintentando… ("+i+" de 3)"}});
+  }
+  $("reg").addEventListener("click",function(){
+    err("");show("ayuda",false);
+    if(modo==="carnet"&&!/^[A-Z]{2}\d{5}$/.test($("car").value))return err("El carnet son 2 letras y 5 números, por ejemplo AB12345.");
+    if($("cod").value.replace(/\D/g,"").length!==4)return err("El código son 4 números, por ejemplo 12-34.");
+    busy("reg",true,"Buscando tu ubicación…","Registrar asistencia");
+    // Sin ubicación también se envía: el servidor responde si la clase es en línea (no se registra aquí) o explica cómo permitir la ubicación.
+    ubicar(function(p){enviar(p)},function(code){enviar(null,code||2)});
+  });
+  // Probar la ubicación antes de clase (no registra nada ni muestra distancias).
+  $("probar").addEventListener("click",function(){
+    err("");ayuda("","Buscando tu ubicación…");
+    ubicar(function(p){
+      if(p.coords.accuracy>200)ayuda("precisa","Tu celular da una ubicación aproximada. Activa la ubicación exacta:");
+      else ayuda("","✓ Tu ubicación funciona. En clase solo escribe el código y registra.",true);
+    },function(code){ayuda("permiso",code===1?"La ubicación está bloqueada. Haz esto:":"El celular no logró dar la ubicación. Revisa esto:")});
+  });
+  $("cod").addEventListener("input",function(){var d=this.value.replace(/\D/g,"").slice(0,4);this.value=d.length>2?d.slice(0,2)+"-"+d.slice(2):d;
+    // Con los 4 números se cierra el teclado: así el botón ya no se mueve cuando lo tocan.
+    if(d.length===4)this.blur()});
+  $("otp").addEventListener("input",function(){if(this.value.replace(/\D/g,"").length===6)this.blur()});
+  function alEnter(id,btn){$(id).addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();this.blur();$(btn).click()}})}
+  alEnter("cod","reg");alEnter("otp","confirmar");alEnter("vcar","pedir");alEnter("vcor","pedir");
+  $("otra").addEventListener("click",function(){show("done",false);show("form",true);vigilar();$("cod").focus()});
+
+  // ---- Notificar un problema (v40): la solicitud siempre lleva la clase, y solo dice «enviada» si quedó escrita ----
+  var VERIF={verif:1,cambio:1,correo:1},sesHoy=null;
+  function tipoAy(){return (document.querySelector("input[name=ayt]:checked")||{}).value||"otro"}
+  function soltarAy(){$("aygo").disabled=false;$("aygo").textContent="Notificar problema";$("ayok").hidden=true;$("aymsg").hidden=true}
+  function verAy(){var t=tipoAy();show("aydetw",t==="otro");show("aysesw",!VERIF[t]&&!!sesHoy&&sesHoy.length>0)}
+  function cargarSes(){
+    llamar("sesionesHoy",[],function(xs){
+      sesHoy=xs||[];var s=$("ayses");s.textContent="";
+      if(sesHoy.length!==1){var o=document.createElement("option");o.value="";o.textContent="Elige la clase…";s.appendChild(o)}
+      sesHoy.forEach(function(x){var o=document.createElement("option");o.value=String(x.id);o.textContent=x.nombre;s.appendChild(o)});
+      verAy();
+    },function(){},{n:2,ms:15000});
+  }
+  function abrirAyp(def){var r=document.querySelector("input[name=ayt][value="+def+"]");if(r)r.checked=true;soltarAy();verAy();show("ayp",true);if(!sesHoy)cargarSes();try{$("ayp").scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}}
+  Array.prototype.forEach.call(document.querySelectorAll("input[name=ayt]"),function(r){r.addEventListener("change",function(){soltarAy();verAy()})});
+  $("ayses").addEventListener("change",soltarAy);
+  $("ayab").addEventListener("click",function(){var t=!$("err").hidden?$("err").textContent:"";abrirAyp(/c[oó]digo no existe/i.test(t)?"codigo":/ya registr[oó] la asistencia de otro/i.test(t)?"celular":/No se pudo registrar/i.test(t)?"red":"gps")});
+  $("ayab2").addEventListener("click",function(){abrirAyp("verif")});
+  $("aygo").addEventListener("click",function(){
+    var car=$("ver").hidden?$("car").value:$("vcar").value,ult=(!$("err").hidden&&$("err").textContent)||(!$("verr").hidden&&$("verr").textContent)||"";
+    var tipo=tipoAy(),det=$("aydet").value.trim(),p=fresca();
+    function mal(t){$("aymsg").textContent=t;$("aymsg").hidden=false}
+    if(tipo==="otro"&&det.length<5){mal("Cuéntanos en pocas palabras qué pasó.");$("aydet").focus();return}
+    if(!VERIF[tipo]&&sesHoy&&sesHoy.length>1&&!$("ayses").value&&$("cod").value.replace(/\D/g,"").length!==4){mal("Elige de qué clase es tu solicitud.");$("ayses").focus();return}
+    $("aymsg").hidden=true;busy("aygo",true,"Enviando…","Notificar problema");
+    llamar("pedirAyuda",[{token:token,carnet:car,codigo:$("cod").value,sesion:$("ayses").value||"",tipo:tipo,detalle:det,ultimo:ult,nav:NAV,huella:hu,
+      lat:p?p.coords.latitude:null,lon:p?p.coords.longitude:null,acc:p?p.coords.accuracy:null}],function(r){
+      busy("aygo",false,"","Notificar problema");
+      if(!r.ok){if(r.elegir){if(!sesHoy||!sesHoy.length)cargarSes();else show("aysesw",true)}mal(r.msg);return}
+      $("aygo").disabled=true;$("aygo").textContent="✓ Solicitud enviada";
+      $("ayok").textContent=r.ya?"✓ Ya enviaste tu solicitud de esta clase. Quedó registrada y el Dr. Pineda la revisará. No necesitas enviarla otra vez.":"✓ Tu solicitud quedó registrada y el Dr. Pineda la revisará. La respuesta te llegará a tu correo. No necesitas repetirla.";
+      $("ayok").hidden=false;
+    },function(e){busy("aygo",false,"","Notificar problema");mal("Tu solicitud NO se envió: "+porque(e)+". Vuelve a tocar «Notificar problema». Si no hay manera, avisa al docente antes de salir del aula.")},
+    {n:3,ms:20000,alReintentar:function(i){$("aygo").textContent="Reintentando… ("+i+" de 3)"}});
+  });
+})();
+</script>
+</body>
+</html>
